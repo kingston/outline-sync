@@ -2,15 +2,15 @@ import pLimit from 'p-limit';
 
 import type { Document, DocumentWithChildren } from '@src/types/documents.js';
 
+import { REQUEST_CONCURRENCY } from '@src/constants/concurrency.js';
+
 import type {
   DocumentCollectionDocumentNode,
   OutlineService,
 } from './outline.js';
 
-const CONCURRENT_REQUEST_LIMIT = 10;
-
 // limit the number of concurrent requests
-const limit = pLimit(CONCURRENT_REQUEST_LIMIT);
+const limit = pLimit(REQUEST_CONCURRENCY);
 
 /**
  * Fetch a document from Outline limiting the number of concurrent requests

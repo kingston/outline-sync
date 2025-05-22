@@ -4,6 +4,7 @@ import pLimit from 'p-limit';
 
 import type { DocumentCollection } from '@src/types/collections.js';
 
+import { REQUEST_CONCURRENCY } from '@src/constants/concurrency.js';
 import { readCollectionFiles } from '@src/services/output-files.js';
 
 import type { OutlineService } from '../services/outline.js';
@@ -15,7 +16,7 @@ import { getOutlineService } from '../services/outline.js';
 import { getCollectionConfigs } from '../utils/collection-filter.js';
 import { directoryExists } from '../utils/file-manager.js';
 
-const limit = pLimit(10);
+const limit = pLimit(REQUEST_CONCURRENCY);
 
 /**
  * Upload local markdown files to Outline
