@@ -2245,9 +2245,7 @@ export interface components {
              *       "delete": false
              *     }
              */
-            abilities: {
-                [key: string]: components["schemas"]["Ability"];
-            };
+            abilities: Record<string, components["schemas"]["Ability"]>;
         };
         /**
          * @description A single permission granted by a policy
@@ -2313,36 +2311,28 @@ export interface components {
     responses: {
         /** @description The specified resource was not found. */
         NotFound: {
-            headers: {
-                [name: string]: unknown;
-            };
+            headers: Record<string, unknown>;
             content: {
                 "application/json": components["schemas"]["Error"];
             };
         };
         /** @description The request failed one or more validations. */
         Validation: {
-            headers: {
-                [name: string]: unknown;
-            };
+            headers: Record<string, unknown>;
             content: {
                 "application/json": components["schemas"]["Error"];
             };
         };
         /** @description The current API key is not authorized to perform this action. */
         Unauthorized: {
-            headers: {
-                [name: string]: unknown;
-            };
+            headers: Record<string, unknown>;
             content: {
                 "application/json": components["schemas"]["Error"];
             };
         };
         /** @description The API key is missing or otherwise invalid. */
         Unauthenticated: {
-            headers: {
-                [name: string]: unknown;
-            };
+            headers: Record<string, unknown>;
             content: {
                 "application/json": components["schemas"]["Error"];
             };
@@ -2411,9 +2401,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: {
@@ -2453,9 +2441,7 @@ export interface operations {
         responses: {
             /** @description The url for the attachment */
             302: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content?: never;
             };
         };
@@ -2481,9 +2467,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         /** @example true */
@@ -2509,9 +2493,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Auth"];
@@ -2533,9 +2515,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: {
@@ -2579,9 +2559,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Collection"];
@@ -2616,9 +2594,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         /** @example [] */
@@ -2652,9 +2628,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Collection"][];
@@ -2704,9 +2678,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Collection"];
@@ -2758,9 +2730,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Collection"];
@@ -2796,9 +2766,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: {
@@ -2838,9 +2806,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         /** @example true */
@@ -2882,9 +2848,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: {
@@ -2922,9 +2886,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: {
@@ -2963,9 +2925,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         /** @example true */
@@ -3007,9 +2967,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: {
@@ -3044,9 +3002,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         /** @example true */
@@ -3080,9 +3036,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: {
@@ -3115,9 +3069,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: {
@@ -3161,9 +3113,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Comment"];
@@ -3196,9 +3146,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Comment"];
@@ -3231,9 +3179,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Comment"];
@@ -3265,9 +3211,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         /** @example true */
@@ -3309,9 +3253,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Comment"][];
@@ -3348,9 +3290,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Document"];
@@ -3388,9 +3328,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Document"];
@@ -3422,9 +3360,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         /** @description The document content in Markdown formatting */
@@ -3467,9 +3403,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Document"][];
@@ -3510,9 +3444,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Document"][];
@@ -3541,9 +3473,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Document"][];
@@ -3600,9 +3530,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         documents: components["schemas"]["Document"][];
@@ -3661,9 +3589,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: {
@@ -3720,9 +3646,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Document"];
@@ -3767,9 +3691,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Document"];
@@ -3802,9 +3724,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Document"];
@@ -3839,9 +3759,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Document"];
@@ -3881,9 +3799,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: {
@@ -3922,9 +3838,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Document"];
@@ -3965,9 +3879,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Document"];
@@ -4008,9 +3920,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         /** @example true */
@@ -4048,9 +3958,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["User"][];
@@ -4089,9 +3997,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: {
@@ -4130,9 +4036,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: {
@@ -4169,9 +4073,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         /** @example true */
@@ -4221,9 +4123,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Event"][];
@@ -4257,9 +4157,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["FileOperation"];
@@ -4293,9 +4191,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         /** @example true */
@@ -4330,9 +4226,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/octet-stream": string;
                 };
@@ -4365,9 +4259,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["FileOperation"][];
@@ -4401,9 +4293,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Group"];
@@ -4448,9 +4338,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: {
@@ -4486,9 +4374,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Group"];
@@ -4522,9 +4408,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Group"];
@@ -4557,9 +4441,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         /** @example true */
@@ -4600,9 +4482,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: {
@@ -4639,9 +4519,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: {
@@ -4682,9 +4560,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: {
@@ -4726,9 +4602,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["OAuthClient"];
@@ -4753,9 +4627,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": components["schemas"]["Pagination"] & components["schemas"]["Sorting"] & {
                         data?: components["schemas"]["OAuthClient"][];
@@ -4820,9 +4692,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["OAuthClient"];
@@ -4890,9 +4760,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["OAuthClient"];
@@ -4926,9 +4794,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["OAuthClient"];
@@ -4962,9 +4828,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         /** @example true */
@@ -4998,9 +4862,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Revision"];
@@ -5034,9 +4896,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Revision"][];
@@ -5075,9 +4935,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Share"];
@@ -5112,9 +4970,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Share"][];
@@ -5146,9 +5002,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Share"];
@@ -5181,9 +5035,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Share"];
@@ -5215,9 +5067,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         /** @example true */
@@ -5253,9 +5103,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Star"];
@@ -5285,9 +5133,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: {
@@ -5323,9 +5169,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["Star"];
@@ -5358,9 +5202,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         /** @example true */
@@ -5392,9 +5234,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: {
@@ -5430,9 +5270,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["User"];
@@ -5478,9 +5316,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["User"][];
@@ -5515,9 +5351,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["User"];
@@ -5553,9 +5387,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["User"];
@@ -5590,9 +5422,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["User"];
@@ -5627,9 +5457,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["User"];
@@ -5664,9 +5492,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         /** @example true */
@@ -5701,9 +5527,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["View"][];
@@ -5733,9 +5557,7 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": {
                         data: components["schemas"]["View"];

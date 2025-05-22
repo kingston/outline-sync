@@ -11,6 +11,7 @@ export const collectionConfigSchema = z.object({
 
 export const behaviorConfigSchema = z.object({
   skipMetadata: z.boolean().default(false),
+  cleanupAfterDownload: z.boolean().default(true),
 });
 
 export const configSchema = z.object({

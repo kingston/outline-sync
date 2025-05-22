@@ -5,6 +5,10 @@ import ora from 'ora';
 import type { DocumentCollection } from '@src/types/collections.js';
 
 import { getDocumentsForCollection } from '@src/services/documents.js';
+import {
+  cleanupUnwrittenFiles,
+  readCollectionFiles,
+} from '@src/services/output-files.js';
 
 import type { OutlineService } from '../services/outline.js';
 import type { Config, DownloadOptions } from '../types/config.js';
@@ -37,6 +41,7 @@ export async function downloadCommand(
 
     const outputDir = options.dir ?? config.outputDir;
     const includeMetadata = !config.behavior.skipMetadata;
+    const { cleanupAfterDownload } = config.behavior;
 
     spinner.text = 'Fetching collections...';
     const allCollections = await outlineService.getCollections();
@@ -58,7 +63,12 @@ export async function downloadCommand(
 
     // Download each collection
     for (const collection of collectionsToDownload) {
-      await downloadCollection(outlineService, collection, includeMetadata);
+      await downloadCollection(
+        outlineService,
+        collection,
+        includeMetadata,
+        cleanupAfterDownload,
+      );
     }
 
     console.info(chalk.green('✓ Download completed successfully!'));
@@ -75,10 +85,26 @@ async function downloadCollection(
   outlineService: OutlineService,
   collection: DocumentCollectionWithConfig,
   includeMetadata: boolean,
+  cleanupAfterDownload: boolean,
 ): Promise<void> {
   const spinner = ora(`Downloading collection: ${collection.name}`).start();
 
   try {
+    // Index existing files to preserve descriptions
+    const existingDocsIndex = new Map<string, DocumentFrontmatter>();
+    try {
+      const existingDocs = await readCollectionFiles(collection);
+
+      // Extract just the metadata for each document
+      for (const doc of existingDocs) {
+        if (doc.metadata.outlineId) {
+          existingDocsIndex.set(doc.metadata.outlineId, doc.metadata);
+        }
+      }
+    } catch {
+      // No existing files or error reading them
+    }
+
     const documents = await getDocumentsForCollection(
       outlineService,
       collection.id,
@@ -87,7 +113,9 @@ async function downloadCollection(
 
     // Download documents
     let downloadedCount = 0;
+    const writtenPaths = new Set<string>();
     const orderCounter = { lastOrder: 1 };
+
     for (const doc of documents) {
       const { written } = await writeDocumentRecursive({
         hierarchyDoc: doc,
@@ -95,8 +123,21 @@ async function downloadCollection(
         outputDir: collectionDir,
         includeMetadata,
         orderCounter,
+        existingDocsIndex,
+        writtenPaths,
       });
       downloadedCount += written;
+    }
+
+    // Clean up files that weren't written
+    if (cleanupAfterDownload && writtenPaths.size > 0) {
+      const deletedCount = await cleanupUnwrittenFiles(
+        collectionDir,
+        writtenPaths,
+      );
+      if (deletedCount > 0) {
+        spinner.text = `Cleaned up ${deletedCount.toString()} unused file(s) from ${collection.name}`;
+      }
     }
 
     spinner.succeed(
@@ -117,12 +158,16 @@ async function writeDocumentRecursive({
   outputDir,
   includeMetadata,
   orderCounter,
+  existingDocsIndex,
+  writtenPaths,
 }: {
   hierarchyDoc: DocumentWithChildren;
   collection: DocumentCollection;
   outputDir: string;
   includeMetadata: boolean;
   orderCounter: { lastOrder: number };
+  existingDocsIndex: Map<string, DocumentFrontmatter>;
+  writtenPaths: Set<string>;
 }): Promise<{ written: number }> {
   // Determine file path based on whether it has children
   const newParentPath = path.join(
@@ -135,19 +180,30 @@ async function writeDocumentRecursive({
       : path.join(outputDir, createSafeMarkdownFilename(hierarchyDoc.title));
 
   // Create metadata if enabled
-  const metadata: DocumentFrontmatter | undefined = includeMetadata
-    ? {
-        title: hierarchyDoc.title,
-        description: hierarchyDoc.description,
-        outlineId: hierarchyDoc.id,
-        sidebar: {
-          order: orderCounter.lastOrder,
-        },
-      }
-    : undefined;
+  let metadata: DocumentFrontmatter | undefined;
+  if (includeMetadata) {
+    // Check if we have existing metadata for this document
+    const existingMetadata = existingDocsIndex.get(hierarchyDoc.id);
+
+    metadata = {
+      title: hierarchyDoc.title,
+      // Preserve description from existing file if not present in Outline
+      description: hierarchyDoc.description ?? existingMetadata?.description,
+      outlineId: hierarchyDoc.id,
+      sidebar: {
+        order: orderCounter.lastOrder,
+      },
+    };
+  }
 
   // Write document file
   await writeDocumentFile(filePath, hierarchyDoc.text, metadata);
+  writtenPaths.add(filePath);
+
+  // Add parent directory to written paths if it's a nested document
+  if (hierarchyDoc.children.length > 0) {
+    writtenPaths.add(newParentPath);
+  }
 
   orderCounter.lastOrder += 1;
 
@@ -160,6 +216,8 @@ async function writeDocumentRecursive({
       outputDir: newParentPath,
       includeMetadata,
       orderCounter,
+      existingDocsIndex,
+      writtenPaths,
     });
     writtenCount += written;
   }

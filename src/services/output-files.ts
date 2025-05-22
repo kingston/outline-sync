@@ -106,3 +106,71 @@ export async function readCollectionFiles(
     collection,
   );
 }
+
+/**
+ * Get all file paths from a directory recursively
+ */
+async function getAllPaths(
+  dirPath: string,
+  paths = new Set<string>(),
+): Promise<Set<string>> {
+  try {
+    const entries = await fs.readdir(dirPath, { withFileTypes: true });
+
+    for (const entry of entries) {
+      const fullPath = path.join(dirPath, entry.name);
+      paths.add(fullPath);
+
+      if (entry.isDirectory()) {
+        await getAllPaths(fullPath, paths);
+      }
+    }
+  } catch {
+    // Directory doesn't exist
+  }
+
+  return paths;
+}
+
+/**
+ * Clean up files that were not written during the current download
+ *
+ * @param outputDirectory - The output directory to clean
+ * @param writtenPaths - Set of paths that were written
+ * @returns Number of files/directories deleted
+ */
+export async function cleanupUnwrittenFiles(
+  outputDirectory: string,
+  writtenPaths: Set<string>,
+): Promise<number> {
+  const allPaths = await getAllPaths(outputDirectory);
+  let deletedCount = 0;
+
+  // Sort paths by depth (deepest first) to delete files before directories
+  const sortedPaths = [...allPaths].sort(
+    (a, b) => b.split(path.sep).length - a.split(path.sep).length,
+  );
+
+  for (const filePath of sortedPaths) {
+    if (!writtenPaths.has(filePath)) {
+      try {
+        const stat = await fs.stat(filePath);
+        if (stat.isDirectory()) {
+          // Only delete empty directories
+          const contents = await fs.readdir(filePath);
+          if (contents.length === 0) {
+            await fs.rmdir(filePath);
+            deletedCount++;
+          }
+        } else {
+          await fs.unlink(filePath);
+          deletedCount++;
+        }
+      } catch {
+        // File already deleted or doesn't exist
+      }
+    }
+  }
+
+  return deletedCount;
+}

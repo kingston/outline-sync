@@ -1,1 +1,8 @@
-export { default } from '@ktam/lint-node/eslint';
+import eslint from '@ktam/lint-node/eslint';
+
+export default [
+  ...eslint,
+  {
+    ignores: ['src/services/generated/**'],
+  },
+];
