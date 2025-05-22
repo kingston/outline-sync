@@ -23,6 +23,13 @@ export function createOutlineClient(
 
 // TODO: Add support for pagination
 
+export interface DocumentCollectionDocumentNode {
+  id: string;
+  title: string;
+  url: string;
+  children: DocumentCollectionDocumentNode[];
+}
+
 /**
  * Outline API service with typed methods
  */
@@ -56,6 +63,34 @@ export class OutlineService {
         name: collection.name,
         description: collection.description,
       }));
+  }
+
+  /**
+   * Get the structure of a document collection
+   */
+  async getDocumentCollectionStructure(
+    collectionId: string,
+  ): Promise<DocumentCollectionDocumentNode[]> {
+    const { data, error } = await this.client.POST('/collections.documents', {
+      body: { id: collectionId },
+    });
+    if (error) {
+      throw new Error(`Failed to fetch collection documents: ${error.error}`);
+    }
+    return data.data;
+  }
+
+  /**
+   * Get a document by its ID
+   */
+  async getDocument(documentId: string): Promise<Document> {
+    const { data, error } = await this.client.POST('/documents.info', {
+      body: { id: documentId, shareId: undefined as unknown as string },
+    });
+    if (error) {
+      throw new Error(`Failed to fetch document: ${error.error}`);
+    }
+    return data.data;
   }
 
   /**

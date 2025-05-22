@@ -42,6 +42,8 @@ export interface ParsedDocument {
   metadata: DocumentFrontmatter;
   content: string;
   filePath: string;
+  parentDocumentId?: string;
+  collectionId: string;
 }
 
 /**
@@ -53,4 +55,11 @@ export interface DocumentHierarchy {
   parentId?: string;
   children: DocumentHierarchy[];
   document: DocumentWithOrder;
+}
+
+/**
+ * Document with children for recursive processing
+ */
+export interface DocumentWithChildren extends Document {
+  children: DocumentWithChildren[];
 }

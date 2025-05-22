@@ -4,12 +4,13 @@ import ora from 'ora';
 
 import type { DocumentCollection } from '@src/types/collections.js';
 
+import { getDocumentsForCollection } from '@src/services/documents.js';
+
 import type { OutlineService } from '../services/outline.js';
 import type { Config, DownloadOptions } from '../types/config.js';
 import type {
   DocumentFrontmatter,
-  DocumentHierarchy,
-  DocumentWithOrder,
+  DocumentWithChildren,
 } from '../types/documents.js';
 import type { DocumentCollectionWithConfig } from '../utils/collection-filter.js';
 
@@ -78,30 +79,28 @@ async function downloadCollection(
   const spinner = ora(`Downloading collection: ${collection.name}`).start();
 
   try {
-    const documents = await outlineService.getDocumentsForCollection(
+    const documents = await getDocumentsForCollection(
+      outlineService,
       collection.id,
     );
-
-    // Build document hierarchy
-    const hierarchy = buildDocumentHierarchy(documents);
-
     const collectionDir = collection.outputDirectory;
 
     // Download documents
     let downloadedCount = 0;
-    for (const doc of hierarchy) {
-      await downloadDocumentRecursive({
-        outlineService,
+    const orderCounter = { lastOrder: 1 };
+    for (const doc of documents) {
+      const { written } = await writeDocumentRecursive({
         hierarchyDoc: doc,
         collection,
         outputDir: collectionDir,
         includeMetadata,
+        orderCounter,
       });
-      downloadedCount++;
+      downloadedCount += written;
     }
 
     spinner.succeed(
-      `Downloaded ${String(downloadedCount)} document(s) from ${collection.name}`,
+      `Downloaded ${downloadedCount.toString()} document(s) from ${collection.name}`,
     );
   } catch (error) {
     spinner.fail(`Failed to download collection: ${collection.name}`);
@@ -110,101 +109,60 @@ async function downloadCollection(
 }
 
 /**
- * Build a hierarchical structure of documents
+ * Write a document and its children recursively
  */
-function buildDocumentHierarchy(
-  documents: DocumentWithOrder[],
-): DocumentHierarchy[] {
-  const documentMap = new Map<string, DocumentHierarchy>();
-  const rootDocuments: DocumentHierarchy[] = [];
-
-  // First pass: create all document entries
-  for (const doc of documents) {
-    documentMap.set(doc.id, {
-      id: doc.id,
-      title: doc.title,
-      parentId: doc.parentDocumentId,
-      children: [],
-      document: doc,
-    });
-  }
-
-  // Second pass: build hierarchy
-  for (const doc of documents) {
-    if (!doc.id) continue;
-    const hierarchyDoc = documentMap.get(doc.id);
-    if (!hierarchyDoc) continue;
-
-    if (doc.parentDocumentId) {
-      const parent = documentMap.get(doc.parentDocumentId);
-      if (parent) {
-        parent.children.push(hierarchyDoc);
-      } else {
-        // Parent not found, treat as root
-        rootDocuments.push(hierarchyDoc);
-      }
-    } else {
-      rootDocuments.push(hierarchyDoc);
-    }
-  }
-
-  return rootDocuments;
-}
-
-/**
- * Download a document and its children recursively
- */
-async function downloadDocumentRecursive({
-  outlineService,
+async function writeDocumentRecursive({
   hierarchyDoc,
   collection,
   outputDir,
   includeMetadata,
+  orderCounter,
 }: {
-  outlineService: OutlineService;
-  hierarchyDoc: DocumentHierarchy;
+  hierarchyDoc: DocumentWithChildren;
   collection: DocumentCollection;
   outputDir: string;
   includeMetadata: boolean;
-}): Promise<void> {
-  // Get full document details
-  const { document } = hierarchyDoc;
-
+  orderCounter: { lastOrder: number };
+}): Promise<{ written: number }> {
   // Determine file path based on whether it has children
   const newParentPath = path.join(
     outputDir,
-    createSafeFilename(document.title),
+    createSafeFilename(hierarchyDoc.title),
   );
   const filePath =
     hierarchyDoc.children.length > 0
       ? path.join(newParentPath, 'index.md')
-      : path.join(outputDir, createSafeMarkdownFilename(document.title));
+      : path.join(outputDir, createSafeMarkdownFilename(hierarchyDoc.title));
 
   // Create metadata if enabled
   const metadata: DocumentFrontmatter | undefined = includeMetadata
     ? {
-        title: document.title,
-        description: document.description,
-        outlineId: document.id,
+        title: hierarchyDoc.title,
+        description: hierarchyDoc.description,
+        outlineId: hierarchyDoc.id,
         sidebar: {
-          order: document.order,
+          order: orderCounter.lastOrder,
         },
       }
     : undefined;
 
   // Write document file
-  await writeDocumentFile(filePath, document.text, metadata);
+  await writeDocumentFile(filePath, hierarchyDoc.text, metadata);
 
-  console.info(chalk.gray(`  ↓ ${document.title}`));
+  orderCounter.lastOrder += 1;
 
-  // Download children
+  // Write children
+  let writtenCount = 1;
   for (const child of hierarchyDoc.children) {
-    await downloadDocumentRecursive({
-      outlineService,
+    const { written } = await writeDocumentRecursive({
       hierarchyDoc: child,
       collection,
-      outputDir,
+      outputDir: newParentPath,
       includeMetadata,
+      orderCounter,
     });
+    writtenCount += written;
   }
+
+  return { written: writtenCount };
 }
