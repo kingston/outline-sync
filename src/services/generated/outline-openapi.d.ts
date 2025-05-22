@@ -1614,86 +1614,86 @@ export interface components {
         Permission: "read" | "read_write";
         Attachment: {
             /** @example image/png */
-            contentType?: string;
-            size?: number;
-            name?: string;
+            contentType: string;
+            size: number;
+            name: string;
             /** Format: uri */
-            url?: string;
+            url: string;
             /**
              * Format: uuid
              * @description Identifier for the associated document, if any.
              */
-            documentId?: string;
+            documentId: string;
         };
         Pagination: {
             /** @example 0 */
-            offset?: number;
+            offset: number;
             /** @example 25 */
-            limit?: number;
+            limit: number;
         };
         Sorting: {
             /** @example updatedAt */
-            sort?: string;
+            sort: string;
             /**
              * @example DESC
              * @enum {string}
              */
-            direction?: "ASC" | "DESC";
+            direction: "ASC" | "DESC";
         };
         NavigationNode: {
             /**
              * Format: uuid
              * @description Unique identifier for the document.
              */
-            id?: string;
-            title?: string;
-            url?: string;
-            children?: components["schemas"]["NavigationNode"][];
+            id: string;
+            title: string;
+            url: string;
+            children: components["schemas"]["NavigationNode"][];
         };
         Auth: {
-            user?: components["schemas"]["User"];
-            team?: components["schemas"]["Team"];
+            user: components["schemas"]["User"];
+            team: components["schemas"]["Team"];
         };
         Collection: {
             /**
              * Format: uuid
              * @description Unique identifier for the object.
              */
-            readonly id?: string;
+            readonly id: string;
             /**
              * @description A short unique identifier that can be used to identify the collection instead of the UUID.
              * @example hDYep1TPAM
              */
-            readonly urlId?: string;
+            readonly urlId: string;
             /**
              * @description The name of the collection.
              * @example Human Resources
              */
-            name?: string;
+            name: string;
             /**
              * @description A description of the collection, may contain markdown formatting
              * @example
              */
-            description?: string;
+            description: string;
             /** @description The sort of documents in the collection. Note that not all API responses respect this and it is left as a frontend concern to implement. */
-            sort?: {
-                field?: string;
+            sort: {
+                field: string;
                 /** @enum {string} */
-                direction?: "asc" | "desc";
+                direction: "asc" | "desc";
             };
             /**
              * @description The position of the collection in the sidebar
              * @example P
              */
-            index?: string;
+            index: string;
             /**
              * @description A color representing the collection, this is used to help make collections more identifiable in the UI. It should be in HEX format including the #
              * @example #123123
              */
-            color?: string;
+            color: string;
             /** @description A string that represents an icon in the outline-icons package or an emoji */
-            icon?: string;
-            permission?: components["schemas"]["Permission"];
+            icon: string;
+            permission: components["schemas"]["Permission"];
             /**
              * @description Whether public document sharing is enabled in this collection
              * @default false
@@ -1703,489 +1703,489 @@ export interface components {
              * Format: date-time
              * @description The date and time that this object was created
              */
-            readonly createdAt?: string;
+            readonly createdAt: string;
             /**
              * Format: date-time
              * @description The date and time that this object was last changed
              */
-            readonly updatedAt?: string;
+            readonly updatedAt: string;
             /**
              * Format: date-time
              * @description The date and time that this object was deleted
              */
-            readonly deletedAt?: string | null;
+            readonly deletedAt: string | null;
             /**
              * Format: date-time
              * @description The date and time that this object was archived
              */
-            readonly archivedAt?: string | null;
-            archivedBy?: components["schemas"]["User"];
+            readonly archivedAt: string | null;
+            archivedBy: components["schemas"]["User"];
         };
         Comment: {
             /**
              * Format: uuid
              * @description Unique identifier for the object.
              */
-            readonly id?: string;
+            readonly id: string;
             /** @description The editor data representing this comment. */
-            data?: Record<string, never>;
+            data: Record<string, never>;
             /**
              * Format: uuid
              * @description Identifier for the document this is related to.
              */
-            documentId?: string;
+            documentId: string;
             /**
              * Format: uuid
              * @description Identifier for the comment this is a child of, if any.
              */
-            parentCommentId?: string;
+            parentCommentId: string;
             /**
              * Format: date-time
              * @description The date and time that this object was created
              */
-            readonly createdAt?: string;
-            createdBy?: components["schemas"]["User"];
+            readonly createdAt: string;
+            createdBy: components["schemas"]["User"];
             /**
              * Format: date-time
              * @description The date and time that this object was last changed
              */
-            readonly updatedAt?: string;
-            updatedBy?: components["schemas"]["User"];
+            readonly updatedAt: string;
+            updatedBy: components["schemas"]["User"];
             /** @description The document text that the comment is anchored to, only included if includeAnchorText=true. */
-            readonly anchorText?: string;
+            readonly anchorText: string;
         };
         Document: {
             /**
              * Format: uuid
              * @description Unique identifier for the object.
              */
-            readonly id?: string;
+            readonly id: string;
             /**
              * Format: uuid
              * @description Identifier for the associated collection.
              */
-            collectionId?: string;
+            collectionId: string;
             /**
              * Format: uuid
              * @description Identifier for the document this is a child of, if any.
              */
-            parentDocumentId?: string;
+            parentDocumentId: string;
             /**
              * @description The title of the document.
              * @example 🎉 Welcome to Acme Inc
              */
-            title?: string;
+            title: string;
             /** @description Whether this document should be displayed in a full-width view. */
-            fullWidth?: boolean;
+            fullWidth: boolean;
             /**
              * @description An emoji associated with the document.
              * @example 🎉
              */
-            emoji?: string;
+            emoji: string;
             /**
              * @description The text content of the document, contains markdown formatting
              * @example …
              */
-            text?: string;
+            text: string;
             /**
              * @description A short unique ID that can be used to identify the document as an alternative to the UUID
              * @example hDYep1TPAM
              */
-            urlId?: string;
-            collaborators?: components["schemas"]["User"][];
+            urlId: string;
+            collaborators: components["schemas"]["User"][];
             /** @description Whether this document is pinned in the collection */
-            pinned?: boolean;
+            pinned: boolean;
             /** @description Whether this document is a template */
-            template?: boolean;
+            template: boolean;
             /**
              * Format: uuid
              * @description Unique identifier for the template this document was created from, if any
              */
-            templateId?: string;
+            templateId: string;
             /** @description A number that is auto incrementing with every revision of the document that is saved */
-            readonly revision?: number;
+            readonly revision: number;
             /**
              * Format: date-time
              * @description The date and time that this object was created
              */
-            readonly createdAt?: string;
-            createdBy?: components["schemas"]["User"];
+            readonly createdAt: string;
+            createdBy: components["schemas"]["User"];
             /**
              * Format: date-time
              * @description The date and time that this object was last changed
              */
-            readonly updatedAt?: string;
-            updatedBy?: components["schemas"]["User"];
+            readonly updatedAt: string;
+            updatedBy: components["schemas"]["User"];
             /**
              * Format: date-time
              * @description The date and time that this object was published
              */
-            readonly publishedAt?: string | null;
+            readonly publishedAt: string | null;
             /**
              * Format: date-time
              * @description The date and time that this object was archived
              */
-            readonly archivedAt?: string;
+            readonly archivedAt: string;
             /**
              * Format: date-time
              * @description The date and time that this object was deleted
              */
-            readonly deletedAt?: string | null;
+            readonly deletedAt: string | null;
         };
         Event: {
             /**
              * Format: uuid
              * @description Unique identifier for the object.
              */
-            readonly id?: string;
+            readonly id: string;
             /** @example documents.create */
-            readonly name?: string;
+            readonly name: string;
             /**
              * Format: uuid
              * @description Identifier for the object this event is associated with when it is not one of document, collection, or user.
              */
-            readonly modelId?: string;
+            readonly modelId: string;
             /**
              * Format: uuid
              * @description The user that performed the action.
              */
-            readonly actorId?: string;
+            readonly actorId: string;
             /**
              * @description The ip address the action was performed from. This field is only returned when the `auditLog` boolean is true.
              * @example 60.169.88.100
              */
-            readonly actorIpAddress?: string;
+            readonly actorIpAddress: string;
             /**
              * Format: uuid
              * @description Identifier for the associated collection, if any
              */
-            readonly collectionId?: string;
+            readonly collectionId: string;
             /**
              * Format: uuid
              * @description Identifier for the associated document, if any
              */
-            readonly documentId?: string;
+            readonly documentId: string;
             /**
              * Format: date-time
              * @description The date and time that this event was created
              */
-            readonly createdAt?: string;
+            readonly createdAt: string;
             /**
              * @description Additional unstructured data associated with the event
              * @example {
              *       "name": "Equipment list"
              *     }
              */
-            readonly data?: Record<string, never>;
-            actor?: components["schemas"]["User"];
+            readonly data: Record<string, never>;
+            actor: components["schemas"]["User"];
         };
         Error: {
             /** @example false */
-            ok?: boolean;
-            error?: string;
-            message?: string;
-            status?: number;
-            data?: Record<string, never>;
+            ok: boolean;
+            error: string;
+            message: string;
+            status: number;
+            data: Record<string, never>;
         };
         FileOperation: {
             /**
              * Format: uuid
              * @description Unique identifier for the object.
              */
-            readonly id?: string;
+            readonly id: string;
             /**
              * @description The type of file operation.
              * @example export
              * @enum {string}
              */
-            readonly type?: "import" | "export";
+            readonly type: "import" | "export";
             /**
              * @description The state of the file operation.
              * @example complete
              * @enum {string}
              */
-            readonly state?: "creating" | "uploading" | "complete" | "error" | "expired";
-            collection?: unknown & components["schemas"]["Collection"];
-            user?: components["schemas"]["User"];
+            readonly state: "creating" | "uploading" | "complete" | "error" | "expired";
+            collection: unknown & components["schemas"]["Collection"];
+            user: components["schemas"]["User"];
             /**
              * @description The size of the resulting file in bytes
              * @example 2048
              */
-            readonly size?: number;
+            readonly size: number;
             /**
              * Format: date-time
              * @description The date and time that this object was created
              */
-            readonly createdAt?: string;
+            readonly createdAt: string;
         };
         Group: {
             /**
              * Format: uuid
              * @description Unique identifier for the object.
              */
-            readonly id?: string;
+            readonly id: string;
             /**
              * @description The name of this group.
              * @example Engineering
              */
-            name?: string;
+            name: string;
             /**
              * @description The number of users that are members of the group
              * @example 11
              */
-            readonly memberCount?: number;
+            readonly memberCount: number;
             /**
              * Format: date-time
              * @description The date and time that this object was created
              */
-            readonly createdAt?: string;
+            readonly createdAt: string;
             /**
              * Format: date-time
              * @description The date and time that this object was last changed
              */
-            readonly updatedAt?: string;
+            readonly updatedAt: string;
         };
         OAuthClient: {
             /**
              * Format: uuid
              * @description Unique identifier for the object.
              */
-            readonly id?: string;
+            readonly id: string;
             /**
              * @description The name of this OAuth client.
              * @example Acme Inc
              */
-            name?: string;
+            name: string;
             /**
              * @description A short description of this OAuth client.
              * @example Integrate Acme Inc's services into Outline.
              */
-            description?: string;
+            description: string;
             /**
              * @description The name of the developer who created this OAuth client.
              * @example Acme Inc
              */
-            developerName?: string;
+            developerName: string;
             /**
              * @description The URL of the developer who created this OAuth client.
              * @example https://example.com
              */
-            developerUrl?: string;
+            developerUrl: string;
             /** @description A URL pointing to an image representing the OAuth client. */
-            avatarUrl?: string;
+            avatarUrl: string;
             /**
              * @description The client ID for the OAuth client.
              * @example 2bquf8avrpdv31par42a
              */
-            readonly clientId?: string;
+            readonly clientId: string;
             /**
              * @description The client secret for the OAuth client.
              * @example ol_sk_rapdv31...
              */
-            readonly clientSecret?: string;
+            readonly clientSecret: string;
             /**
              * @description The redirect URIs for the OAuth client.
              * @example [
              *       "https://example.com/callback"
              *     ]
              */
-            redirectUris?: string[];
+            redirectUris: string[];
             /**
              * @description Whether the OAuth client is available to other workspaces.
              * @example true
              */
-            published?: boolean;
+            published: boolean;
             /**
              * Format: date-time
              * @description Date and time when this OAuth client was created
              */
-            readonly createdAt?: string;
+            readonly createdAt: string;
             /**
              * Format: date-time
              * @description Date and time when this OAuth client was updated
              */
-            readonly updatedAt?: string;
+            readonly updatedAt: string;
         };
         Revision: {
             /**
              * Format: uuid
              * @description Unique identifier for the object.
              */
-            readonly id?: string;
+            readonly id: string;
             /**
              * Format: uuid
              * @description Identifier for the associated document.
              */
-            readonly documentId?: string;
+            readonly documentId: string;
             /** @description Title of the document. */
-            readonly title?: string;
+            readonly title: string;
             /** @description Body of the document, may contain markdown formatting */
-            readonly text?: string;
+            readonly text: string;
             /**
              * Format: date-time
              * @description Date and time when this revision was created
              */
-            readonly createdAt?: string;
-            createdBy?: components["schemas"]["User"];
+            readonly createdAt: string;
+            createdBy: components["schemas"]["User"];
         };
         Share: {
             /**
              * Format: uuid
              * @description Unique identifier for the object.
              */
-            readonly id?: string;
+            readonly id: string;
             /**
              * @description Title of the shared document.
              * @example React best practices
              */
-            readonly documentTitle?: string;
+            readonly documentTitle: string;
             /**
              * Format: uri
              * @description URL of the original document.
              */
-            readonly documentUrl?: string;
+            readonly documentUrl: string;
             /**
              * Format: uri
              * @description URL of the publicly shared document.
              */
-            readonly url?: string;
+            readonly url: string;
             /**
              * @description If true the share can be loaded without a user account.
              * @example false
              */
-            published?: boolean;
+            published: boolean;
             /**
              * @description If to also give permission to view documents nested beneath this one.
              * @example true
              */
-            includeChildDocuments?: boolean;
+            includeChildDocuments: boolean;
             /**
              * Format: date-time
              * @description Date and time when this share was created
              */
-            readonly createdAt?: string;
-            createdBy?: components["schemas"]["User"];
+            readonly createdAt: string;
+            createdBy: components["schemas"]["User"];
             /**
              * Format: date-time
              * @description Date and time when this share was edited
              */
-            readonly updatedAt?: string;
+            readonly updatedAt: string;
             /**
              * Format: date-time
              * @description Date and time when this share was last viewed
              */
-            readonly lastAccessedAt?: string;
+            readonly lastAccessedAt: string;
         };
         Star: {
             /**
              * Format: uuid
              * @description Unique identifier for the object.
              */
-            readonly id?: string;
+            readonly id: string;
             /** @description Index of the star in the list of stars. */
-            index?: string;
+            index: string;
             /**
              * Format: uuid
              * @description Unique identifier for the starred document.
              */
-            readonly documentId?: string;
+            readonly documentId: string;
             /**
              * Format: uuid
              * @description Unique identifier for the starred collection.
              */
-            readonly collectionId?: string;
+            readonly collectionId: string;
             /**
              * Format: uri
              * @description URL of the original document.
              */
-            readonly documentUrl?: string;
+            readonly documentUrl: string;
             /**
              * Format: date-time
              * @description Date and time when this star was created
              */
-            readonly createdAt?: string;
+            readonly createdAt: string;
         };
         Team: {
             /**
              * Format: uuid
              * @description Unique identifier for the object.
              */
-            readonly id?: string;
+            readonly id: string;
             /** @description The name of this team, it is usually auto-generated when the first SSO connection is made but can be changed if neccessary. */
-            name?: string;
+            name: string;
             /**
              * Format: uri
              * @description The URL for the image associated with this team, it will be displayed in the team switcher and in the top left of the knowledge base along with the name.
              */
-            avatarUrl?: string;
+            avatarUrl: string;
             /** @description Whether this team has share links globally enabled. If this value is false then all sharing UI and APIs are disabled. */
-            sharing?: boolean;
+            sharing: boolean;
             /**
              * Format: uuid
              * @description If set then the referenced collection is where users will be redirected to after signing in instead of the Home screen
              */
-            defaultCollectionId?: string;
-            defaultUserRole?: components["schemas"]["UserRole"];
+            defaultCollectionId: string;
+            defaultUserRole: components["schemas"]["UserRole"];
             /** @description Whether members are allowed to create new collections. If false then only admins can create collections. */
-            memberCollectionCreate?: boolean;
+            memberCollectionCreate: boolean;
             /** @description Whether this team has embeds in documents globally enabled. It can be disabled to reduce potential data leakage to third parties. */
-            documentEmbeds?: boolean;
+            documentEmbeds: boolean;
             /** @description Whether this team has collaborative editing in documents globally enabled. */
-            collaborativeEditing?: boolean;
+            collaborativeEditing: boolean;
             /** @description Whether an invite is required to join this team, if false users may join with a linked SSO provider. */
-            inviteRequired?: boolean;
-            allowedDomains?: string[];
+            inviteRequired: boolean;
+            allowedDomains: string[];
             /** @description Whether this team has guest signin enabled. Guests can signin with an email address and are not required to have a Google Workspace/Slack SSO account once invited. */
-            guestSignin?: boolean;
+            guestSignin: boolean;
             /** @description Represents the subdomain at which this team's knowledge base can be accessed. */
-            subdomain?: string;
+            subdomain: string;
             /**
              * Format: uri
              * @description The fully qualified URL at which this team's knowledge base can be accessed.
              */
-            readonly url?: string;
+            readonly url: string;
         };
         User: {
             /**
              * Format: uuid
              * @description Unique identifier for the object.
              */
-            readonly id?: string;
+            readonly id: string;
             /**
              * @description The name of this user, it is migrated from Slack or Google Workspace when the SSO connection is made but can be changed if neccessary.
              * @example Jane Doe
              */
-            name?: string;
+            name: string;
             /**
              * Format: uri
              * @description The URL for the image associated with this user, it will be displayed in the application UI and email notifications.
              */
-            avatarUrl?: string;
+            avatarUrl: string;
             /**
              * Format: email
              * @description The email associated with this user, it is migrated from Slack or Google Workspace when the SSO connection is made but can be changed if neccessary.
              */
-            readonly email?: string;
-            role?: components["schemas"]["UserRole"];
+            readonly email: string;
+            role: components["schemas"]["UserRole"];
             /** @description Whether this user has been suspended. */
-            readonly isSuspended?: boolean;
+            readonly isSuspended: boolean;
             /**
              * Format: date-time
              * @description The last time this user made an API request, this value is updated at most every 5 minutes.
              */
-            readonly lastActiveAt?: string;
+            readonly lastActiveAt: string;
             /**
              * Format: date-time
              * @description The date and time that this user first signed in or was invited as a guest.
              */
-            readonly createdAt?: string;
+            readonly createdAt: string;
         };
         Invite: {
             /** @description The full name of the user being invited */
-            name?: string;
+            name: string;
             /** @description The email address to invite */
-            email?: string;
-            role?: components["schemas"]["UserRole"];
+            email: string;
+            role: components["schemas"]["UserRole"];
         };
         /** @enum {string} */
         UserRole: "admin" | "member" | "viewer" | "guest";
@@ -2193,50 +2193,50 @@ export interface components {
         CollectionStatus: "archived";
         Membership: {
             /** @description Unique identifier for the object. */
-            readonly id?: string;
+            readonly id: string;
             /**
              * Format: uuid
              * @description Identifier for the associated user.
              */
-            readonly userId?: string;
+            readonly userId: string;
             /**
              * Format: uuid
              * @description Identifier for the associated collection.
              */
-            readonly collectionId?: string;
-            permission?: components["schemas"]["Permission"];
+            readonly collectionId: string;
+            permission: components["schemas"]["Permission"];
         };
         SearchResult: {
             /** Format: uuid */
-            readonly id?: string;
+            readonly id: string;
             /**
              * @description The user-provided search query
              * @example What is our hiring policy?
              */
-            readonly query?: string;
+            readonly query: string;
             /**
              * @description An answer to the query, if possible
              * @example Our hiring policy can be summarized as…
              */
-            readonly answer?: string;
+            readonly answer: string;
             /**
              * @description The source of the query
              * @example app
              * @enum {string}
              */
-            readonly source?: "api" | "app";
+            readonly source: "api" | "app";
             /**
              * Format: date-time
              * @description The date and time that this object was created
              */
-            readonly createdAt?: string;
+            readonly createdAt: string;
         };
         Policy: {
             /**
              * Format: uuid
              * @description Unique identifier for the object this policy references.
              */
-            readonly id?: string;
+            readonly id: string;
             /**
              * @description The abilities that are allowed by this policy, if an array is returned then the individual ID's in the array represent the memberships that grant the ability.
              * @example {
@@ -2245,7 +2245,7 @@ export interface components {
              *       "delete": false
              *     }
              */
-            abilities?: {
+            abilities: {
                 [key: string]: components["schemas"]["Ability"];
             };
         };
@@ -2256,58 +2256,58 @@ export interface components {
         Ability: string[] | boolean;
         GroupMembership: {
             /** @description Unique identifier for the object. */
-            readonly id?: string;
+            readonly id: string;
             /**
              * Format: uuid
              * @description Identifier for the associated group.
              */
-            readonly groupId?: string;
+            readonly groupId: string;
             /**
              * Format: uuid
              * @description Identifier for the associated user.
              */
-            readonly userId?: string;
-            user?: components["schemas"]["User"];
+            readonly userId: string;
+            user: components["schemas"]["User"];
         };
         CollectionGroupMembership: {
             /** @description Unique identifier for the object. */
-            readonly id?: string;
+            readonly id: string;
             /**
              * Format: uuid
              * @description Identifier for the associated group.
              */
-            readonly groupId?: string;
+            readonly groupId: string;
             /**
              * Format: uuid
              * @description Identifier for the associated collection.
              */
-            readonly collectionId?: string;
-            permission?: components["schemas"]["Permission"];
+            readonly collectionId: string;
+            permission: components["schemas"]["Permission"];
         };
         View: {
             /** @description Unique identifier for the object. */
-            readonly id?: string;
+            readonly id: string;
             /**
              * Format: uuid
              * @description Identifier for the associated document.
              */
-            readonly documentId?: string;
+            readonly documentId: string;
             /**
              * Format: date-time
              * @description When the document was first viewed by the user
              */
-            readonly firstViewedAt?: string;
+            readonly firstViewedAt: string;
             /**
              * Format: date-time
              * @description When the document was last viewed by the user
              */
-            readonly lastViewedAt?: string;
+            readonly lastViewedAt: string;
             /**
              * @description The number of times the user has viewed the document.
              * @example 22
              */
-            readonly count?: number;
-            user?: components["schemas"]["User"];
+            readonly count: number;
+            user: components["schemas"]["User"];
         };
     };
     responses: {
@@ -2359,11 +2359,11 @@ export interface components {
             content: {
                 "application/json": {
                     /** @example false */
-                    ok?: boolean;
+                    ok: boolean;
                     /** @example rate_limit_exceeded */
-                    error?: string;
+                    error: string;
                     /** @example 429 */
-                    status?: number;
+                    status: number;
                 };
             };
         };
@@ -2416,12 +2416,12 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: {
-                            maxUploadSize?: number;
+                        data: {
+                            maxUploadSize: number;
                             /** Format: uri */
-                            uploadUrl?: string;
-                            form?: Record<string, never>;
-                            attachment?: components["schemas"]["Attachment"];
+                            uploadUrl: string;
+                            form: Record<string, never>;
+                            attachment: components["schemas"]["Attachment"];
                         };
                     };
                 };
@@ -2487,7 +2487,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @example true */
-                        success?: boolean;
+                        success: boolean;
                     };
                 };
             };
@@ -2514,7 +2514,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Auth"];
+                        data: components["schemas"]["Auth"];
                     };
                 };
             };
@@ -2538,18 +2538,18 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: {
+                        data: {
                             /** @example Acme Inc */
-                            name?: string;
+                            name: string;
                             /** @example acme-inc.getoutline.com */
-                            hostname?: string;
-                            services?: {
+                            hostname: string;
+                            services: {
                                 /** @example slack */
-                                id?: string;
+                                id: string;
                                 /** @example Slack */
-                                name?: string;
+                                name: string;
                                 /** @example https://acme-inc.getoutline.com/auth/slack */
-                                authUrl?: string;
+                                authUrl: string;
                             }[];
                         };
                     };
@@ -2584,8 +2584,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Collection"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["Collection"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -2622,7 +2622,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @example [] */
-                        data?: components["schemas"]["NavigationNode"][];
+                        data: components["schemas"]["NavigationNode"][];
                     };
                 };
             };
@@ -2657,9 +2657,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Collection"][];
-                        pagination?: components["schemas"]["Pagination"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["Collection"][];
+                        pagination: components["schemas"]["Pagination"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -2709,8 +2709,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Collection"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["Collection"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -2763,8 +2763,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Collection"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["Collection"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -2801,9 +2801,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: {
-                            users?: components["schemas"]["User"][];
-                            memberships?: components["schemas"]["Membership"][];
+                        data: {
+                            users: components["schemas"]["User"][];
+                            memberships: components["schemas"]["Membership"][];
                         };
                     };
                 };
@@ -2844,7 +2844,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @example true */
-                        success?: boolean;
+                        success: boolean;
                     };
                 };
             };
@@ -2887,11 +2887,11 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: {
-                            users?: components["schemas"]["User"][];
-                            memberships?: components["schemas"]["Membership"][];
+                        data: {
+                            users: components["schemas"]["User"][];
+                            memberships: components["schemas"]["Membership"][];
                         };
-                        pagination?: components["schemas"]["Pagination"];
+                        pagination: components["schemas"]["Pagination"];
                     };
                 };
             };
@@ -2927,8 +2927,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: {
-                            collectionGroupMemberships?: components["schemas"]["CollectionGroupMembership"][];
+                        data: {
+                            collectionGroupMemberships: components["schemas"]["CollectionGroupMembership"][];
                         };
                     };
                 };
@@ -2969,7 +2969,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @example true */
-                        success?: boolean;
+                        success: boolean;
                     };
                 };
             };
@@ -3012,11 +3012,11 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: {
-                            groups?: components["schemas"]["Group"][];
-                            collectionGroupMemberships?: components["schemas"]["CollectionGroupMembership"][];
+                        data: {
+                            groups: components["schemas"]["Group"][];
+                            collectionGroupMemberships: components["schemas"]["CollectionGroupMembership"][];
                         };
-                        pagination?: components["schemas"]["Pagination"];
+                        pagination: components["schemas"]["Pagination"];
                     };
                 };
             };
@@ -3050,7 +3050,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @example true */
-                        success?: boolean;
+                        success: boolean;
                     };
                 };
             };
@@ -3085,8 +3085,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: {
-                            fileOperation?: components["schemas"]["FileOperation"];
+                        data: {
+                            fileOperation: components["schemas"]["FileOperation"];
                         };
                     };
                 };
@@ -3108,7 +3108,7 @@ export interface operations {
             content: {
                 "application/json": {
                     /** @enum {string} */
-                    format?: "outline-markdown" | "json" | "html";
+                    format: "outline-markdown" | "json" | "html";
                 };
             };
         };
@@ -3120,8 +3120,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: {
-                            fileOperation?: components["schemas"]["FileOperation"];
+                        data: {
+                            fileOperation: components["schemas"]["FileOperation"];
                         };
                     };
                 };
@@ -3166,7 +3166,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Comment"];
+                        data: components["schemas"]["Comment"];
                     };
                 };
             };
@@ -3201,8 +3201,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Comment"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["Comment"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -3236,8 +3236,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Comment"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["Comment"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -3271,7 +3271,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @example true */
-                        success?: boolean;
+                        success: boolean;
                     };
                 };
             };
@@ -3314,9 +3314,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Comment"][];
-                        policies?: components["schemas"]["Policy"][];
-                        pagination?: components["schemas"]["Pagination"];
+                        data: components["schemas"]["Comment"][];
+                        policies: components["schemas"]["Policy"][];
+                        pagination: components["schemas"]["Pagination"];
                     };
                 };
             };
@@ -3336,12 +3336,12 @@ export interface operations {
             content: {
                 "application/json": {
                     /** @description Unique identifier for the document. Either the UUID or the urlId is acceptable. */
-                    id?: string;
+                    id: string;
                     /**
                      * Format: uuid
                      * @description Unique identifier for a document share, a shareId may be used in place of a document UUID
                      */
-                    shareId?: string;
+                    shareId: string;
                 };
             };
         };
@@ -3353,8 +3353,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Document"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["Document"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -3393,8 +3393,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Document"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["Document"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -3428,7 +3428,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @description The document content in Markdown formatting */
-                        data?: string;
+                        data: string;
                     };
                 };
             };
@@ -3472,9 +3472,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Document"][];
-                        policies?: components["schemas"]["Policy"][];
-                        pagination?: components["schemas"]["Pagination"];
+                        data: components["schemas"]["Document"][];
+                        policies: components["schemas"]["Policy"][];
+                        pagination: components["schemas"]["Pagination"];
                     };
                 };
             };
@@ -3515,9 +3515,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Document"][];
-                        policies?: components["schemas"]["Policy"][];
-                        pagination?: components["schemas"]["Pagination"];
+                        data: components["schemas"]["Document"][];
+                        policies: components["schemas"]["Policy"][];
+                        pagination: components["schemas"]["Pagination"];
                     };
                 };
             };
@@ -3546,9 +3546,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Document"][];
-                        policies?: components["schemas"]["Policy"][];
-                        pagination?: components["schemas"]["Pagination"];
+                        data: components["schemas"]["Document"][];
+                        policies: components["schemas"]["Policy"][];
+                        pagination: components["schemas"]["Pagination"];
                     };
                 };
             };
@@ -3605,9 +3605,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        documents?: components["schemas"]["Document"][];
-                        policies?: components["schemas"]["Policy"][];
-                        search?: components["schemas"]["SearchResult"];
+                        documents: components["schemas"]["Document"][];
+                        policies: components["schemas"]["Policy"][];
+                        search: components["schemas"]["SearchResult"];
                     };
                 };
             };
@@ -3666,22 +3666,22 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: {
+                        data: {
                             /**
                              * @description A short snippet of context from the document that includes the search query.
                              * @example At Acme Inc our hiring practices are inclusive
                              */
-                            context?: string;
+                            context: string;
                             /**
                              * Format: float
                              * @description The ranking used to order search results based on relevance.
                              * @example 1.1844109
                              */
-                            ranking?: number;
-                            document?: components["schemas"]["Document"];
+                            ranking: number;
+                            document: components["schemas"]["Document"];
                         }[];
-                        policies?: components["schemas"]["Policy"][];
-                        pagination?: components["schemas"]["Pagination"];
+                        policies: components["schemas"]["Policy"][];
+                        pagination: components["schemas"]["Pagination"];
                     };
                 };
             };
@@ -3725,8 +3725,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Document"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["Document"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -3772,8 +3772,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Document"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["Document"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -3807,8 +3807,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Document"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["Document"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -3844,8 +3844,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Document"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["Document"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -3886,11 +3886,11 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: {
-                            documents?: components["schemas"]["Document"][];
-                            collections?: components["schemas"]["Collection"][];
+                        data: {
+                            documents: components["schemas"]["Document"][];
+                            collections: components["schemas"]["Collection"][];
                         };
-                        policies?: components["schemas"]["Policy"][];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -3927,8 +3927,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Document"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["Document"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -3970,8 +3970,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Document"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["Document"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -4014,7 +4014,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @example true */
-                        success?: boolean;
+                        success: boolean;
                     };
                 };
             };
@@ -4053,9 +4053,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["User"][];
-                        pagination?: components["schemas"]["Pagination"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["User"][];
+                        pagination: components["schemas"]["Pagination"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -4094,11 +4094,11 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: {
-                            users?: components["schemas"]["User"][];
-                            memberships?: components["schemas"]["Membership"][];
+                        data: {
+                            users: components["schemas"]["User"][];
+                            memberships: components["schemas"]["Membership"][];
                         };
-                        pagination?: components["schemas"]["Pagination"];
+                        pagination: components["schemas"]["Pagination"];
                     };
                 };
             };
@@ -4135,9 +4135,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: {
-                            users?: components["schemas"]["User"][];
-                            memberships?: components["schemas"]["Membership"][];
+                        data: {
+                            users: components["schemas"]["User"][];
+                            memberships: components["schemas"]["Membership"][];
                         };
                     };
                 };
@@ -4175,7 +4175,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @example true */
-                        success?: boolean;
+                        success: boolean;
                     };
                 };
             };
@@ -4226,8 +4226,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Event"][];
-                        pagination?: components["schemas"]["Pagination"];
+                        data: components["schemas"]["Event"][];
+                        pagination: components["schemas"]["Pagination"];
                     };
                 };
             };
@@ -4262,7 +4262,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["FileOperation"];
+                        data: components["schemas"]["FileOperation"];
                     };
                 };
             };
@@ -4299,7 +4299,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @example true */
-                        success?: boolean;
+                        success: boolean;
                     };
                 };
             };
@@ -4370,8 +4370,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["FileOperation"][];
-                        pagination?: components["schemas"]["Pagination"];
+                        data: components["schemas"]["FileOperation"][];
+                        pagination: components["schemas"]["Pagination"];
                     };
                 };
             };
@@ -4406,8 +4406,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Group"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["Group"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -4453,13 +4453,13 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: {
-                            groups?: components["schemas"]["Group"][];
+                        data: {
+                            groups: components["schemas"]["Group"][];
                             /** @description A preview of memberships in the group, note that this is not all memberships which can be queried from `groups.memberships`. */
-                            groupMemberships?: components["schemas"]["GroupMembership"][];
+                            groupMemberships: components["schemas"]["GroupMembership"][];
                         };
-                        policies?: components["schemas"]["Policy"][];
-                        pagination?: components["schemas"]["Pagination"];
+                        policies: components["schemas"]["Policy"][];
+                        pagination: components["schemas"]["Pagination"];
                     };
                 };
             };
@@ -4491,8 +4491,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Group"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["Group"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -4527,8 +4527,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Group"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["Group"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -4563,7 +4563,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @example true */
-                        success?: boolean;
+                        success: boolean;
                     };
                 };
             };
@@ -4605,11 +4605,11 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: {
-                            users?: components["schemas"]["User"][];
-                            groupMemberships?: components["schemas"]["GroupMembership"][];
+                        data: {
+                            users: components["schemas"]["User"][];
+                            groupMemberships: components["schemas"]["GroupMembership"][];
                         };
-                        pagination?: components["schemas"]["Pagination"];
+                        pagination: components["schemas"]["Pagination"];
                     };
                 };
             };
@@ -4644,10 +4644,10 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: {
-                            users?: components["schemas"]["User"][];
-                            groups?: components["schemas"]["Group"][];
-                            groupMemberships?: components["schemas"]["Membership"][];
+                        data: {
+                            users: components["schemas"]["User"][];
+                            groups: components["schemas"]["Group"][];
+                            groupMemberships: components["schemas"]["Membership"][];
                         };
                     };
                 };
@@ -4687,8 +4687,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: {
-                            groups?: components["schemas"]["Group"][];
+                        data: {
+                            groups: components["schemas"]["Group"][];
                         };
                     };
                 };
@@ -4714,12 +4714,12 @@ export interface operations {
                      * Format: uuid
                      * @description Unique identifier for the OAuth client.
                      */
-                    id?: string;
+                    id: string;
                     /**
                      * @description Public identifier for the OAuth client.
                      * @example 2bquf8avrpdv31par42a
                      */
-                    clientId?: string;
+                    clientId: string;
                 };
             };
         };
@@ -4731,8 +4731,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["OAuthClient"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["OAuthClient"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -4825,8 +4825,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["OAuthClient"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["OAuthClient"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -4895,8 +4895,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["OAuthClient"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["OAuthClient"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -4931,8 +4931,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["OAuthClient"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["OAuthClient"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -4968,7 +4968,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @example true */
-                        success?: boolean;
+                        success: boolean;
                     };
                 };
             };
@@ -5003,7 +5003,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Revision"];
+                        data: components["schemas"]["Revision"];
                     };
                 };
             };
@@ -5039,8 +5039,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Revision"][];
-                        pagination?: components["schemas"]["Pagination"];
+                        data: components["schemas"]["Revision"][];
+                        pagination: components["schemas"]["Pagination"];
                     };
                 };
             };
@@ -5063,12 +5063,12 @@ export interface operations {
                      * Format: uuid
                      * @description Unique identifier for the share.
                      */
-                    id?: string;
+                    id: string;
                     /**
                      * Format: uuid
                      * @description Unique identifier for a document. One of id or documentId must be provided.
                      */
-                    documentId?: string;
+                    documentId: string;
                 };
             };
         };
@@ -5080,8 +5080,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Share"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["Share"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -5117,9 +5117,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Share"][];
-                        policies?: components["schemas"]["Policy"][];
-                        pagination?: components["schemas"]["Pagination"];
+                        data: components["schemas"]["Share"][];
+                        policies: components["schemas"]["Policy"][];
+                        pagination: components["schemas"]["Pagination"];
                     };
                 };
             };
@@ -5151,8 +5151,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Share"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["Share"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -5186,8 +5186,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Share"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["Share"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -5221,7 +5221,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @example true */
-                        success?: boolean;
+                        success: boolean;
                     };
                 };
             };
@@ -5243,10 +5243,10 @@ export interface operations {
             content: {
                 "application/json": {
                     /** Format: uuid */
-                    documentId?: string;
+                    documentId: string;
                     /** Format: uuid */
-                    collectionId?: string;
-                    index?: string;
+                    collectionId: string;
+                    index: string;
                 };
             };
         };
@@ -5258,8 +5258,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Star"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["Star"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -5290,12 +5290,12 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: {
-                            stars?: components["schemas"]["Star"][];
-                            documents?: components["schemas"]["Document"][];
+                        data: {
+                            stars: components["schemas"]["Star"][];
+                            documents: components["schemas"]["Document"][];
                         };
-                        pagination?: components["schemas"]["Pagination"];
-                        policies?: components["schemas"]["Policy"][];
+                        pagination: components["schemas"]["Pagination"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -5328,8 +5328,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["Star"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["Star"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -5364,7 +5364,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @example true */
-                        success?: boolean;
+                        success: boolean;
                     };
                 };
             };
@@ -5397,9 +5397,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: {
-                            sent?: components["schemas"]["Invite"][];
-                            users?: components["schemas"]["User"][];
+                        data: {
+                            sent: components["schemas"]["Invite"][];
+                            users: components["schemas"]["User"][];
                         };
                     };
                 };
@@ -5435,8 +5435,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["User"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["User"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -5483,9 +5483,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["User"][];
-                        policies?: components["schemas"]["Policy"][];
-                        pagination?: components["schemas"]["Pagination"];
+                        data: components["schemas"]["User"][];
+                        policies: components["schemas"]["Policy"][];
+                        pagination: components["schemas"]["Pagination"];
                     };
                 };
             };
@@ -5504,11 +5504,11 @@ export interface operations {
         requestBody?: {
             content: {
                 "application/json": {
-                    name?: string;
+                    name: string;
                     /** Format: BCP47 */
-                    language?: string;
+                    language: string;
                     /** Format: uri */
-                    avatarUrl?: string;
+                    avatarUrl: string;
                 };
             };
         };
@@ -5520,8 +5520,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["User"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["User"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -5558,8 +5558,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["User"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["User"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -5595,8 +5595,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["User"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["User"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -5632,8 +5632,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["User"];
-                        policies?: components["schemas"]["Policy"][];
+                        data: components["schemas"]["User"];
+                        policies: components["schemas"]["Policy"][];
                     };
                 };
             };
@@ -5670,7 +5670,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @example true */
-                        success?: boolean;
+                        success: boolean;
                     };
                 };
             };
@@ -5706,7 +5706,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["View"][];
+                        data: components["schemas"]["View"][];
                     };
                 };
             };
@@ -5738,7 +5738,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data?: components["schemas"]["View"];
+                        data: components["schemas"]["View"];
                     };
                 };
             };

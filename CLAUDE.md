@@ -148,3 +148,4 @@ pnpm build
 - Import test functions from 'vitest' (no globals)
 - Collocate tests with source files using `.unit.test.ts` or `.int.test.ts` suffixes
 - Run `pnpm lint` and `pnpm typecheck` before committing changes
+- Run one round of linting and typechecking to avoid unnecessary cycles.
