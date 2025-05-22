@@ -3,11 +3,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import slugify from 'slugify';
 
-import {
-  type DocumentFrontmatter,
-  documentFrontmatterSchema,
-  type ParsedDocument,
-} from '../types/documents.js';
+import { type DocumentFrontmatter } from '../types/documents.js';
 
 /**
  * Create a filesystem-safe filename from a document title
@@ -48,28 +44,6 @@ export async function writeDocumentFile(
 }
 
 /**
- * Read and parse a document file with frontmatter
- */
-export async function readDocumentFile(
-  filePath: string,
-): Promise<ParsedDocument> {
-  const fileContent = await fs.readFile(filePath, 'utf8');
-  const parsed = matter(fileContent);
-
-  try {
-    return {
-      metadata: documentFrontmatterSchema.parse(parsed.data),
-      content: parsed.content,
-      filePath,
-    };
-  } catch (error) {
-    throw new Error(
-      `Failed to parse document file ${filePath} (note: metadata is required for upload operations): ${String(error)}`,
-    );
-  }
-}
-
-/**
  * Check if a directory exists
  */
 export async function directoryExists(path: string): Promise<boolean> {
@@ -79,35 +53,6 @@ export async function directoryExists(path: string): Promise<boolean> {
   } catch {
     return false;
   }
-}
-
-/**
- * Get all markdown files in a directory recursively
- */
-export async function getMarkdownFiles(directory: string): Promise<string[]> {
-  const files: string[] = [];
-
-  async function scanDirectory(dir: string): Promise<void> {
-    try {
-      const entries = await fs.readdir(dir, { withFileTypes: true });
-
-      for (const entry of entries) {
-        const fullPath = path.join(dir, entry.name);
-
-        if (entry.isDirectory()) {
-          await scanDirectory(fullPath);
-        } else if (entry.isFile() && entry.name.endsWith('.md')) {
-          files.push(fullPath);
-        }
-      }
-    } catch {
-      // Directory doesn't exist or can't be read
-      return;
-    }
-  }
-
-  await scanDirectory(directory);
-  return files;
 }
 
 /**

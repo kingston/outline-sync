@@ -1,25 +1,21 @@
 import chalk from 'chalk';
-import path from 'node:path';
 import ora from 'ora';
+import pLimit from 'p-limit';
 
 import type { DocumentCollection } from '@src/types/collections.js';
+
+import { readCollectionFiles } from '@src/services/output-files.js';
 
 import type { OutlineService } from '../services/outline.js';
 import type { Config, UploadOptions } from '../types/config.js';
 import type { Document, ParsedDocument } from '../types/documents.js';
+import type { DocumentCollectionWithConfig } from '../utils/collection-filter.js';
 
 import { getOutlineService } from '../services/outline.js';
 import { getCollectionConfigs } from '../utils/collection-filter.js';
-import {
-  directoryExists,
-  getMarkdownFiles,
-  readDocumentFile,
-} from '../utils/file-manager.js';
-import {
-  findParentDocumentId,
-  moveFileToCorrectLocation,
-  shouldMoveFile,
-} from '../utils/parent-resolver.js';
+import { directoryExists } from '../utils/file-manager.js';
+
+const limit = pLimit(10);
 
 /**
  * Upload local markdown files to Outline
@@ -27,8 +23,6 @@ import {
 export async function uploadCommand(
   config: Config,
   options: UploadOptions,
-  paths: string[] = [],
-  collectionNames: string[] = [],
 ): Promise<void> {
   const spinner = ora('Initializing upload...').start();
 
@@ -44,22 +38,11 @@ export async function uploadCommand(
 
     spinner.text = 'Scanning for markdown files...';
 
-    // Get all markdown files
-    const filesToUpload =
-      paths.length > 0
-        ? paths.filter((path) => path.endsWith('.md'))
-        : await getMarkdownFiles(sourceDir);
-
-    if (filesToUpload.length === 0) {
-      spinner.warn('No markdown files found to upload');
-      return;
-    }
-
     spinner.text = 'Fetching collections from Outline...';
     const allCollections = await outlineService.getCollections();
     const collectionsToProcess = getCollectionConfigs(
       allCollections,
-      collectionNames,
+      options.collection ? [options.collection] : [],
       config,
       sourceDir,
     );
@@ -70,18 +53,12 @@ export async function uploadCommand(
     }
 
     spinner.succeed(
-      `Found ${filesToUpload.length.toString()} file(s) to upload across ${collectionsToProcess.length.toString()} collection(s)`,
+      `Found ${collectionsToProcess.length.toString()} collection(s) to process`,
     );
 
     // Process each collection individually
     for (const collection of collectionsToProcess) {
-      await processCollectionFiles(
-        outlineService,
-        collection,
-        filesToUpload,
-        allCollections,
-        options,
-      );
+      await processCollectionFiles(outlineService, collection, options);
     }
 
     console.info(chalk.green('\n✓ Upload completed successfully!'));
@@ -96,82 +73,50 @@ export async function uploadCommand(
  */
 async function processCollectionFiles(
   outlineService: OutlineService,
-  collection: DocumentCollection,
-  filesToUpload: string[],
-  allCollections: DocumentCollection[],
+  collection: DocumentCollectionWithConfig,
   options: UploadOptions,
 ): Promise<void> {
-  console.info(chalk.cyan(`\nProcessing collection: ${collection.name}`));
+  const spinner = ora(`Processing collection: ${collection.name}`).start();
 
   let uploadedCount = 0;
   let updatedCount = 0;
-  let movedCount = 0;
+  let skippedCount = 0;
   let errorCount = 0;
 
-  for (const filePath of filesToUpload) {
-    try {
-      // Find parent document ID and collection information
-      const parentInfo = await findParentDocumentId(filePath, allCollections);
+  const filesToUpload = await readCollectionFiles(collection);
 
-      // Check if file should be moved
-      const moveInfo = await shouldMoveFile(
-        filePath,
-        parentInfo.parentDocumentId,
-        parentInfo.collectionId,
-        allCollections,
-      );
+  await Promise.all(
+    filesToUpload.map(async (file) => {
+      try {
+        const result = await limit(async () =>
+          uploadFile(outlineService, file, collection, options),
+        );
 
-      let actualFilePath = filePath;
-      if (moveInfo.shouldMove && moveInfo.targetPath) {
-        await moveFileToCorrectLocation(filePath, moveInfo.targetPath);
-        actualFilePath = moveInfo.targetPath;
-        movedCount++;
+        switch (result.status) {
+          case 'created': {
+            uploadedCount++;
+            break;
+          }
+          case 'updated': {
+            updatedCount++;
+            break;
+          }
+          case 'skipped': {
+            skippedCount++;
+            break;
+          }
+        }
+      } catch (error) {
+        errorCount++;
         console.info(
-          chalk.yellow(
-            `  → Moved: ${path.basename(filePath)} to correct location`,
-          ),
+          chalk.red(`  ✗ Failed: ${file.filePath} - ${String(error)}`),
         );
       }
+    }),
+  );
 
-      const result = await uploadFile(
-        outlineService,
-        actualFilePath,
-        collection,
-        parentInfo.parentDocumentId,
-        options,
-      );
-
-      switch (result.status) {
-        case 'created': {
-          uploadedCount++;
-          console.info(chalk.green(`  ✓ Created: ${result.document.title}`));
-          break;
-        }
-        case 'updated': {
-          updatedCount++;
-          console.info(chalk.blue(`  ↑ Updated: ${result.document.title}`));
-          break;
-        }
-        case 'skipped': {
-          console.info(
-            chalk.gray(`  ⤷ Skipped: ${path.basename(actualFilePath)}`),
-          );
-          break;
-        }
-      }
-    } catch (error) {
-      errorCount++;
-      console.info(
-        chalk.red(`  ✗ Failed: ${path.basename(filePath)} - ${String(error)}`),
-      );
-    }
-  }
-
-  // Collection summary
-  console.info(
-    chalk.gray(
-      `  ${collection.name}: Created ${String(uploadedCount)}, Updated ${String(updatedCount)}, Moved ${String(movedCount)}, Errors ${String(errorCount)}`,
-    ),
+  spinner.succeed(
+    `  ${collection.name}: Created ${String(uploadedCount)}, Updated ${String(updatedCount)}, Skipped ${String(skippedCount)}, Errors ${String(errorCount)}`,
   );
 }
 
@@ -199,26 +144,22 @@ type UploadResult =
  */
 async function uploadFile(
   outlineService: OutlineService,
-  filePath: string,
+  file: ParsedDocument,
   collection: DocumentCollection,
-  parentDocumentId: string | undefined,
   options: UploadOptions,
 ): Promise<UploadResult> {
-  // Read and parse the document
-  const parsedDoc = await readDocumentFile(filePath);
-
-  if (!parsedDoc.metadata.outlineId && options.updateOnly) {
+  if (!file.metadata.outlineId && options.updateOnly) {
     return { status: 'skipped' };
   }
 
   // If document has metadata, use it for upload
-  return parsedDoc.metadata.outlineId
-    ? updateExistingDocument(outlineService, parsedDoc)
+  return file.metadata.outlineId
+    ? updateExistingDocument(outlineService, file)
     : createNewDocument(
         outlineService,
-        parsedDoc,
+        file,
         collection,
-        parentDocumentId,
+        file.parentDocumentId,
       );
 }
 
@@ -233,8 +174,17 @@ async function updateExistingDocument(
     throw new Error(`Document ${String(parsedDoc.filePath)} has no outlineId`);
   }
 
+  // Get the document from Outline
+  const document = await outlineService.getDocument(
+    parsedDoc.metadata.outlineId,
+  );
+
+  if (document.text.trim() === parsedDoc.content.trim()) {
+    return { status: 'skipped' };
+  }
+
   // Update the document
-  const document = await outlineService.updateDocument(
+  const updatedDocument = await outlineService.updateDocument(
     parsedDoc.metadata.outlineId,
     {
       title: parsedDoc.metadata.title,
@@ -242,7 +192,7 @@ async function updateExistingDocument(
     },
   );
 
-  return { status: 'updated', document };
+  return { status: 'updated', document: updatedDocument };
 }
 
 /**

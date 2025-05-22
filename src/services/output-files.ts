@@ -74,12 +74,14 @@ async function readCollectionFilesForDirectory(
         collection.id,
         parentDocumentId,
       );
-      const parsedDocuments = await readCollectionFilesForDirectory(
-        fullPath,
-        collection,
-        indexDocument.metadata.outlineId,
+      parsedDocuments.push(
+        indexDocument,
+        ...(await readCollectionFilesForDirectory(
+          fullPath,
+          collection,
+          indexDocument.metadata.outlineId,
+        )),
       );
-      parsedDocuments.push(...parsedDocuments);
     } else if (entry.isFile() && entry.name.endsWith('.md')) {
       parsedDocuments.push(
         await readDocumentFile(fullPath, collection.id, parentDocumentId),

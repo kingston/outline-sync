@@ -49,16 +49,15 @@ program
 program
   .command('upload')
   .description('Upload local markdown files to Outline')
-  .argument('[paths...]', 'File paths to upload')
   .option('-s, --source <directory>', 'Source directory')
   .option('-c, --collection <name>', 'Target collection name/ID')
   .option('--create-missing', 'Create collections/documents if missing')
   .option('--update-only', 'Only update existing documents')
-  .action(async (paths: string[], options: UploadOptions) => {
+  .action(async (options: UploadOptions) => {
     try {
       const config = await loadConfig(program.opts<GlobalOptions>().config);
 
-      await uploadCommand(config, options, paths);
+      await uploadCommand(config, options);
     } catch (error) {
       console.error(
         chalk.red('Error:'),

@@ -46,7 +46,7 @@ export function getCollectionConfigs(
       return {
         ...collection,
         outputDirectory: path.join(
-          outputDir,
+          path.resolve(outputDir),
           collectionConfig?.directory ?? defaultName,
         ),
       };
