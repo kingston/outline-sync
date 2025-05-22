@@ -1,4 +1,3 @@
-import { ensureDir, readFile, writeFile } from 'fs-extra';
 import matter from 'gray-matter';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
@@ -33,13 +32,18 @@ export async function writeDocumentFile(
   content: string,
   metadata: DocumentFrontmatter | undefined,
 ): Promise<void> {
-  await ensureDir(path.dirname(filePath));
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
 
   if (metadata) {
-    const fileContent = matter.stringify(content, metadata);
-    await writeFile(filePath, fileContent, 'utf8');
+    const strippedMetadata = Object.fromEntries(
+      Object.entries(metadata).filter(
+        ([, value]) => (value as unknown) !== undefined,
+      ),
+    );
+    const fileContent = matter.stringify(content, strippedMetadata);
+    await fs.writeFile(filePath, fileContent, 'utf8');
   } else {
-    await writeFile(filePath, content, 'utf8');
+    await fs.writeFile(filePath, content, 'utf8');
   }
 }
 
@@ -49,7 +53,7 @@ export async function writeDocumentFile(
 export async function readDocumentFile(
   filePath: string,
 ): Promise<ParsedDocument> {
-  const fileContent = await readFile(filePath, 'utf8');
+  const fileContent = await fs.readFile(filePath, 'utf8');
   const parsed = matter(fileContent);
 
   try {

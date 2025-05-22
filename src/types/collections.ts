@@ -4,6 +4,10 @@ export interface DocumentCollection {
    */
   id: string;
   /**
+   * The URL ID of the collection
+   */
+  urlId: string;
+  /**
    * The name of the collection
    */
   name: string;

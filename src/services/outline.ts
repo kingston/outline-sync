@@ -52,6 +52,7 @@ export class OutlineService {
       .filter((c) => !c.archivedAt)
       .map((collection) => ({
         id: collection.id,
+        urlId: collection.urlId,
         name: collection.name,
         description: collection.description,
       }));

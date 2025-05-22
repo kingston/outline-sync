@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import path from 'node:path';
 import ora from 'ora';
 
 import type { DocumentCollection } from '@src/types/collections.js';
@@ -8,11 +9,17 @@ import type { Config, UploadOptions } from '../types/config.js';
 import type { Document, ParsedDocument } from '../types/documents.js';
 
 import { getOutlineService } from '../services/outline.js';
+import { getCollectionConfigs } from '../utils/collection-filter.js';
 import {
   directoryExists,
   getMarkdownFiles,
   readDocumentFile,
 } from '../utils/file-manager.js';
+import {
+  findParentDocumentId,
+  moveFileToCorrectLocation,
+  shouldMoveFile,
+} from '../utils/parent-resolver.js';
 
 /**
  * Upload local markdown files to Outline
@@ -21,13 +28,14 @@ export async function uploadCommand(
   config: Config,
   options: UploadOptions,
   paths: string[] = [],
+  collectionNames: string[] = [],
 ): Promise<void> {
   const spinner = ora('Initializing upload...').start();
 
   try {
     const outlineService = getOutlineService(config.outline.apiUrl);
 
-    const sourceDir = options.source ?? config.directories.upload;
+    const sourceDir = options.source ?? config.outputDir;
 
     // Check if source directory exists
     if (!(await directoryExists(sourceDir))) {
@@ -48,51 +56,123 @@ export async function uploadCommand(
     }
 
     spinner.text = 'Fetching collections from Outline...';
-    const collections = await outlineService.getCollections();
-
-    spinner.succeed(
-      `Found ${filesToUpload.length.toString()} file(s) to upload`,
+    const allCollections = await outlineService.getCollections();
+    const collectionsToProcess = getCollectionConfigs(
+      allCollections,
+      collectionNames,
+      config,
+      sourceDir,
     );
 
-    // Process each file
-    let uploadedCount = 0;
-    let updatedCount = 0;
-    let errorCount = 0;
-
-    for (const filePath of filesToUpload) {
-      try {
-        const result = await uploadFile(
-          outlineService,
-          filePath,
-          collections,
-          options,
-        );
-
-        if (result.status === 'created') {
-          uploadedCount++;
-          console.info(chalk.green(`  ✓ Created: ${result.document.title}`));
-        } else if (result.status === 'updated') {
-          updatedCount++;
-          console.info(chalk.blue(`  ↑ Updated: ${result.document.title}`));
-        }
-      } catch (error) {
-        errorCount++;
-        console.info(
-          chalk.red(`  ✗ Failed: ${String(filePath)} - ${String(error)}`),
-        );
-      }
+    if (collectionsToProcess.length === 0) {
+      spinner.fail('No collections found to process');
+      return;
     }
 
-    // Summary
-    console.info(
-      chalk.green(
-        `\n✓ Upload completed! Created: ${String(uploadedCount)}, Updated: ${String(updatedCount)}, Errors: ${String(errorCount)}`,
-      ),
+    spinner.succeed(
+      `Found ${filesToUpload.length.toString()} file(s) to upload across ${collectionsToProcess.length.toString()} collection(s)`,
     );
+
+    // Process each collection individually
+    for (const collection of collectionsToProcess) {
+      await processCollectionFiles(
+        outlineService,
+        collection,
+        filesToUpload,
+        allCollections,
+        options,
+      );
+    }
+
+    console.info(chalk.green('\n✓ Upload completed successfully!'));
   } catch (error) {
     spinner.fail('Upload failed');
     throw error;
   }
+}
+
+/**
+ * Process files for a specific collection
+ */
+async function processCollectionFiles(
+  outlineService: OutlineService,
+  collection: DocumentCollection,
+  filesToUpload: string[],
+  allCollections: DocumentCollection[],
+  options: UploadOptions,
+): Promise<void> {
+  console.info(chalk.cyan(`\nProcessing collection: ${collection.name}`));
+
+  let uploadedCount = 0;
+  let updatedCount = 0;
+  let movedCount = 0;
+  let errorCount = 0;
+
+  for (const filePath of filesToUpload) {
+    try {
+      // Find parent document ID and collection information
+      const parentInfo = await findParentDocumentId(filePath, allCollections);
+
+      // Check if file should be moved
+      const moveInfo = await shouldMoveFile(
+        filePath,
+        parentInfo.parentDocumentId,
+        parentInfo.collectionId,
+        allCollections,
+      );
+
+      let actualFilePath = filePath;
+      if (moveInfo.shouldMove && moveInfo.targetPath) {
+        await moveFileToCorrectLocation(filePath, moveInfo.targetPath);
+        actualFilePath = moveInfo.targetPath;
+        movedCount++;
+        console.info(
+          chalk.yellow(
+            `  → Moved: ${path.basename(filePath)} to correct location`,
+          ),
+        );
+      }
+
+      const result = await uploadFile(
+        outlineService,
+        actualFilePath,
+        collection,
+        parentInfo.parentDocumentId,
+        options,
+      );
+
+      switch (result.status) {
+        case 'created': {
+          uploadedCount++;
+          console.info(chalk.green(`  ✓ Created: ${result.document.title}`));
+          break;
+        }
+        case 'updated': {
+          updatedCount++;
+          console.info(chalk.blue(`  ↑ Updated: ${result.document.title}`));
+          break;
+        }
+        case 'skipped': {
+          console.info(
+            chalk.gray(`  ⤷ Skipped: ${path.basename(actualFilePath)}`),
+          );
+          break;
+        }
+      }
+    } catch (error) {
+      errorCount++;
+      console.info(
+        chalk.red(`  ✗ Failed: ${path.basename(filePath)} - ${String(error)}`),
+      );
+    }
+  }
+
+  // Collection summary
+  console.info(
+    chalk.gray(
+      `  ${collection.name}: Created ${String(uploadedCount)}, Updated ${String(updatedCount)}, Moved ${String(movedCount)}, Errors ${String(errorCount)}`,
+    ),
+  );
 }
 
 interface UploadSkippedResult {

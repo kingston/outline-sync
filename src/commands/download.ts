@@ -11,8 +11,10 @@ import type {
   DocumentHierarchy,
   DocumentWithOrder,
 } from '../types/documents.js';
+import type { DocumentCollectionWithConfig } from '../utils/collection-filter.js';
 
 import { getOutlineService } from '../services/outline.js';
+import { getCollectionConfigs } from '../utils/collection-filter.js';
 import {
   createSafeFilename,
   createSafeMarkdownFilename,
@@ -32,29 +34,17 @@ export async function downloadCommand(
   try {
     const outlineService = getOutlineService(config.outline.apiUrl);
 
-    const outputDir = options.dir ?? config.directories.download;
+    const outputDir = options.dir ?? config.outputDir;
     const includeMetadata = !config.behavior.skipMetadata;
 
     spinner.text = 'Fetching collections...';
-    let collectionsToDownload = await outlineService.getCollections();
-
-    if (!options.all) {
-      if (collectionNames.length > 0) {
-        // Use collections specified in command
-        collectionsToDownload = collectionsToDownload.filter(
-          (collection) =>
-            collectionNames.includes(collection.id) ||
-            collectionNames.includes(collection.name),
-        );
-      } else if (config.collections.length > 0) {
-        // Use collections from config
-        collectionsToDownload = collectionsToDownload.filter(
-          (collection) =>
-            config.collections.includes(collection.id) ||
-            config.collections.includes(collection.name),
-        );
-      }
-    }
+    const allCollections = await outlineService.getCollections();
+    const collectionsToDownload = getCollectionConfigs(
+      allCollections,
+      collectionNames,
+      config,
+      outputDir,
+    );
 
     if (collectionsToDownload.length === 0) {
       spinner.fail('No collections found to download');
@@ -67,12 +57,7 @@ export async function downloadCommand(
 
     // Download each collection
     for (const collection of collectionsToDownload) {
-      await downloadCollection(
-        outlineService,
-        collection,
-        outputDir,
-        includeMetadata,
-      );
+      await downloadCollection(outlineService, collection, includeMetadata);
     }
 
     console.info(chalk.green('✓ Download completed successfully!'));
@@ -87,8 +72,7 @@ export async function downloadCommand(
  */
 async function downloadCollection(
   outlineService: OutlineService,
-  collection: DocumentCollection,
-  outputDir: string,
+  collection: DocumentCollectionWithConfig,
   includeMetadata: boolean,
 ): Promise<void> {
   const spinner = ora(`Downloading collection: ${collection.name}`).start();
@@ -101,10 +85,7 @@ async function downloadCollection(
     // Build document hierarchy
     const hierarchy = buildDocumentHierarchy(documents);
 
-    const collectionDir = path.join(
-      outputDir,
-      createSafeFilename(collection.name),
-    );
+    const collectionDir = collection.outputDirectory;
 
     // Download documents
     let downloadedCount = 0;

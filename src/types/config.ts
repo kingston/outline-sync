@@ -4,9 +4,9 @@ export const outlineConfigSchema = z.object({
   apiUrl: z.string().url().default('https://app.getoutline.com/api'),
 });
 
-export const directoriesConfigSchema = z.object({
-  download: z.string().min(1).default('./docs'),
-  upload: z.string().min(1).default('./docs'),
+export const collectionConfigSchema = z.object({
+  urlId: z.string(),
+  directory: z.string().min(1).optional(),
 });
 
 export const behaviorConfigSchema = z.object({
@@ -15,13 +15,13 @@ export const behaviorConfigSchema = z.object({
 
 export const configSchema = z.object({
   outline: outlineConfigSchema.default({}),
-  collections: z.array(z.string()),
-  directories: directoriesConfigSchema.default({}),
+  collections: z.array(collectionConfigSchema).default([]),
+  outputDir: z.string().min(1).default('docs'),
   behavior: behaviorConfigSchema.default({}),
 });
 
 export type OutlineConfig = z.infer<typeof outlineConfigSchema>;
-export type DirectoriesConfig = z.infer<typeof directoriesConfigSchema>;
+export type DocumentCollectionConfig = z.infer<typeof collectionConfigSchema>;
 export type BehaviorConfig = z.infer<typeof behaviorConfigSchema>;
 export type Config = z.infer<typeof configSchema>;
 
@@ -31,8 +31,6 @@ export type Config = z.infer<typeof configSchema>;
 export interface DownloadOptions {
   /** Custom output directory (overrides config) */
   dir?: string;
-  /** Download all collections instead of configured ones */
-  all?: boolean;
 }
 
 /**

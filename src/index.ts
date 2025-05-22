@@ -37,22 +37,12 @@ program
 program
   .command('download')
   .description('Download collections from Outline to local directory')
-  .argument('[collections...]', 'Collection names or IDs to download')
+  .argument('[collections...]', 'Collection URL IDs or IDs to download')
   .option('-d, --dir <directory>', 'Output directory')
-  .option('-a, --all', 'Download all collections')
-  .option('--format <format>', 'Output format (markdown, json)', 'markdown')
   .action(async (collections: string[], options: DownloadOptions) => {
-    try {
-      const config = await loadConfig(program.opts<GlobalOptions>().config);
+    const config = await loadConfig(program.opts<GlobalOptions>().config);
 
-      await downloadCommand(config, options, collections);
-    } catch (error) {
-      console.error(
-        chalk.red('Error:'),
-        error instanceof Error ? error.message : error,
-      );
-      process.exit(1);
-    }
+    await downloadCommand(config, options, collections);
   });
 
 // Upload command
