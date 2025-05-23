@@ -4,9 +4,15 @@ export const outlineConfigSchema = z.object({
   apiUrl: z.string().url().default('https://app.getoutline.com/api'),
 });
 
+export const collectionMcpConfigSchema = z.object({
+  enabled: z.boolean().default(false),
+  readOnly: z.boolean().default(false),
+});
+
 export const collectionConfigSchema = z.object({
   urlId: z.string(),
   directory: z.string().min(1).optional(),
+  mcp: collectionMcpConfigSchema.default({}),
 });
 
 export const behaviorConfigSchema = z.object({
@@ -23,6 +29,7 @@ export const configSchema = z.object({
 });
 
 export type OutlineConfig = z.infer<typeof outlineConfigSchema>;
+export type CollectionMcpConfig = z.infer<typeof collectionMcpConfigSchema>;
 export type DocumentCollectionConfig = z.infer<typeof collectionConfigSchema>;
 export type BehaviorConfig = z.infer<typeof behaviorConfigSchema>;
 export type Config = z.infer<typeof configSchema>;

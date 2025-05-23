@@ -42,6 +42,7 @@ export interface ParsedDocument {
   metadata: DocumentFrontmatter;
   content: string;
   filePath: string;
+  relativePath: string;
   parentDocumentId?: string;
   collectionId: string;
 }

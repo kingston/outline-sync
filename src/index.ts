@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import type { DownloadOptions, UploadOptions } from './types/config.js';
 
 import { downloadCommand } from './commands/download.js';
+import { mcpCommand } from './commands/mcp.js';
 import { uploadCommand } from './commands/upload.js';
 import { loadConfig } from './utils/config.js';
 
@@ -65,6 +66,16 @@ program
       );
       process.exit(1);
     }
+  });
+
+// MCP server command
+program
+  .command('mcp')
+  .description('Start MCP server for AI assistant integration')
+  .action(async () => {
+    const config = await loadConfig(program.opts<GlobalOptions>().config);
+
+    await mcpCommand(config);
   });
 
 // Handle unknown commands

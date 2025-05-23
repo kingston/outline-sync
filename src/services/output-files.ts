@@ -16,9 +16,9 @@ import { fileExists } from '@src/utils/file-manager.js';
  * @param filePath - The path to the document file
  * @returns The parsed document
  */
-async function readDocumentFile(
+export async function readDocumentFile(
   filePath: string,
-  collectionId: string,
+  collection: DocumentCollectionWithConfig,
   parentDocumentId?: string,
 ): Promise<ParsedDocument> {
   const fileContent = await fs.readFile(filePath, 'utf8');
@@ -29,7 +29,8 @@ async function readDocumentFile(
       metadata: documentFrontmatterSchema.parse(parsed.data),
       content: parsed.content,
       filePath,
-      collectionId,
+      relativePath: path.relative(collection.outputDirectory, filePath),
+      collectionId: collection.id,
       parentDocumentId,
     };
   } catch (error) {
@@ -77,7 +78,7 @@ async function readCollectionFilesForDirectory(
       }
       const indexDocument = await readDocumentFile(
         indexPath,
-        collection.id,
+        collection,
         parentDocumentId,
       );
       parsedDocuments.push(
@@ -90,7 +91,7 @@ async function readCollectionFilesForDirectory(
       );
     } else if (entry.isFile() && entry.name.endsWith('.md')) {
       parsedDocuments.push(
-        await readDocumentFile(fullPath, collection.id, parentDocumentId),
+        await readDocumentFile(fullPath, collection, parentDocumentId),
       );
     }
   }

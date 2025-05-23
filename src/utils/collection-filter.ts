@@ -1,12 +1,13 @@
 import path from 'node:path';
 
 import type { DocumentCollection } from '@src/types/collections.js';
-import type { Config } from '@src/types/config.js';
+import type { CollectionMcpConfig, Config } from '@src/types/config.js';
 
 import { createSafeFilename } from './file-manager.js';
 
 export interface DocumentCollectionWithConfig extends DocumentCollection {
   outputDirectory: string;
+  mcp: CollectionMcpConfig;
 }
 
 /**
@@ -49,6 +50,7 @@ export function getCollectionConfigs(
           path.resolve(outputDir),
           collectionConfig?.directory ?? defaultName,
         ),
+        mcp: collectionConfig?.mcp ?? { enabled: false, readOnly: false },
       };
     });
 }

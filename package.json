@@ -1,7 +1,6 @@
 {
   "name": "outline-sync",
   "version": "0.1.0",
-  "private": true,
   "description": "Enable 2-way sync between an Outline workspace and file system + MCP support",
   "repository": {
     "type": "git",
@@ -23,6 +22,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
     "chalk": "^5.4.1",
     "commander": "^14.0.0",
     "dotenv": "^16.5.0",
