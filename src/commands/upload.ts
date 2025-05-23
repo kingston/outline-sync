@@ -1,10 +1,17 @@
 import chalk from 'chalk';
+import { stat } from 'node:fs/promises';
+import path from 'node:path';
 import ora from 'ora';
 import pLimit from 'p-limit';
 
+import type { ImageUploadInfo } from '@src/services/attachments.js';
 import type { DocumentCollection } from '@src/types/collections.js';
 
 import { REQUEST_CONCURRENCY } from '@src/constants/concurrency.js';
+import {
+  parseRelativeImages,
+  transformMarkdownToAttachments,
+} from '@src/services/attachments.js';
 import { readCollectionFiles } from '@src/services/output-files.js';
 
 import type { OutlineService } from '../services/outline.js';
@@ -59,7 +66,12 @@ export async function uploadCommand(
 
     // Process each collection individually
     for (const collection of collectionsToProcess) {
-      await processCollectionFiles(outlineService, collection, options);
+      await processCollectionFiles(
+        outlineService,
+        collection,
+        options,
+        config.behavior.includeImages,
+      );
     }
 
     console.info(chalk.green('\n✓ Upload completed successfully!'));
@@ -76,6 +88,7 @@ async function processCollectionFiles(
   outlineService: OutlineService,
   collection: DocumentCollectionWithConfig,
   options: UploadOptions,
+  includeImages: boolean,
 ): Promise<void> {
   const spinner = ora(`Processing collection: ${collection.name}`).start();
 
@@ -90,7 +103,7 @@ async function processCollectionFiles(
     filesToUpload.map(async (file) => {
       try {
         const result = await limit(async () =>
-          uploadFile(outlineService, file, collection, options),
+          uploadFile(outlineService, file, collection, options, includeImages),
         );
 
         switch (result.status) {
@@ -148,6 +161,7 @@ async function uploadFile(
   file: ParsedDocument,
   collection: DocumentCollection,
   options: UploadOptions,
+  includeImages: boolean,
 ): Promise<UploadResult> {
   if (!file.metadata.outlineId && options.updateOnly) {
     return { status: 'skipped' };
@@ -155,13 +169,62 @@ async function uploadFile(
 
   // If document has metadata, use it for upload
   return file.metadata.outlineId
-    ? updateExistingDocument(outlineService, file)
+    ? updateExistingDocument(outlineService, file, includeImages)
     : createNewDocument(
         outlineService,
         file,
         collection,
         file.parentDocumentId,
+        includeImages,
       );
+}
+
+/**
+ * Process images in markdown content
+ */
+async function processImagesInContent(
+  outlineService: OutlineService,
+  content: string,
+  documentId: string,
+  filePath: string,
+  images: ImageUploadInfo[],
+): Promise<string> {
+  let processedContent = content;
+
+  // Then handle new images that need to be uploaded
+  for (const image of images) {
+    if (!image.isExistingAttachment) {
+      const imageFullPath = path.join(
+        path.dirname(filePath),
+        image.relativePath,
+      );
+
+      try {
+        // Check if image file exists
+        await stat(imageFullPath);
+
+        // Upload the image
+        const attachment = await outlineService.uploadAttachment({
+          documentId,
+          filePath: imageFullPath,
+        });
+
+        // Replace the relative path with the attachment URL
+        const originalPattern = `![${image.caption}](./${image.relativePath})`;
+        const replacement = `![${image.caption}](${attachment.url})`;
+        processedContent = processedContent.replace(
+          originalPattern,
+          replacement,
+        );
+      } catch (error) {
+        throw new Error(
+          `Failed to upload image ${image.relativePath}: ${String(error)}`,
+        );
+      }
+    }
+  }
+
+  return processedContent;
 }
 
 /**
@@ -170,6 +233,7 @@ async function uploadFile(
 async function updateExistingDocument(
   outlineService: OutlineService,
   parsedDoc: ParsedDocument,
+  includeImages: boolean,
 ): Promise<UploadResult> {
   if (!parsedDoc.metadata.outlineId) {
     throw new Error(`Document ${String(parsedDoc.filePath)} has no outlineId`);
@@ -180,7 +244,27 @@ async function updateExistingDocument(
     parsedDoc.metadata.outlineId,
   );
 
-  if (document.text.trim() === parsedDoc.content.trim()) {
+  const parsedImages = parseRelativeImages(parsedDoc.content);
+  let processedContent = transformMarkdownToAttachments(
+    parsedDoc.content,
+    parsedImages,
+  );
+
+  // Process images in content
+  if (
+    parsedImages.some((image) => !image.isExistingAttachment) ||
+    includeImages
+  ) {
+    processedContent = await processImagesInContent(
+      outlineService,
+      processedContent,
+      parsedDoc.metadata.outlineId,
+      parsedDoc.filePath,
+      parsedImages,
+    );
+  }
+
+  if (document.text.trim() === processedContent.trim()) {
     return { status: 'skipped' };
   }
 
@@ -189,7 +273,7 @@ async function updateExistingDocument(
     parsedDoc.metadata.outlineId,
     {
       title: parsedDoc.metadata.title,
-      text: parsedDoc.content,
+      text: processedContent,
     },
   );
 
@@ -204,18 +288,57 @@ async function createNewDocument(
   parsedDoc: ParsedDocument,
   collection: DocumentCollection,
   parentDocumentId: string | undefined,
+  includeImages: boolean,
 ): Promise<UploadResult> {
   // Create document title from metadata or filename
   const { title } = parsedDoc.metadata;
 
-  // Create the document
+  const parsedImages = parseRelativeImages(parsedDoc.content);
+  // First, transform existing attachment references back
+  const processedContent = transformMarkdownToAttachments(
+    parsedDoc.content,
+    parsedImages,
+  );
+
+  // First create the document with placeholder content to get an ID
   const document = await outlineService.createDocument({
     title,
-    text: parsedDoc.content,
+    text: processedContent,
     collectionId: collection.id,
     parentDocumentId,
     publish: true,
   });
 
-  return { status: 'created', document };
+  if (
+    parsedImages.some((image) => !image.isExistingAttachment) ||
+    !includeImages
+  ) {
+    return { status: 'created', document };
+  }
+
+  try {
+    // Process images with the new document ID
+    const processedContent = await processImagesInContent(
+      outlineService,
+      parsedDoc.content,
+      document.id,
+      parsedDoc.filePath,
+      parsedImages,
+    );
+
+    // Update the document with the final content
+    const finalDocument = await outlineService.updateDocument(document.id, {
+      text: processedContent,
+      publish: true,
+    });
+
+    return { status: 'created', document: finalDocument };
+  } catch (error) {
+    // If image processing fails, update with original content
+    console.warn(`Failed to process images for new document: ${String(error)}`);
+    const fallbackDocument = await outlineService.updateDocument(document.id, {
+      text: parsedDoc.content,
+    });
+    return { status: 'created', document: fallbackDocument };
+  }
 }

@@ -20,6 +20,9 @@ importers:
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3
+      mime-types:
+        specifier: ^3.0.1
+        version: 3.0.1
       openapi-fetch:
         specifier: ^0.14.0
         version: 0.14.0
@@ -45,6 +48,9 @@ importers:
       '@tsconfig/node20':
         specifier: ^20.0.0
         version: 20.1.5
+      '@types/mime-types':
+        specifier: ^2.1.4
+        version: 2.1.4
       '@types/node':
         specifier: ^22.0.0
         version: 22.15.21
@@ -528,6 +534,9 @@ packages:
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
+
+  '@types/mime-types@2.1.4':
+    resolution: {integrity: sha512-lfU4b34HOri+kAY5UheuFMWPDOI+OPceBSHZKp69gEyTL/mmJ4cnU6Y/rlme3UL3GyOn6Y42hyIEw0/q8sWx5w==}
 
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
@@ -1370,6 +1379,14 @@ packages:
   micromatch@4.0.8:
     resolution: {integrity: sha512-PXwfBhYu0hBCPw8Dn0E+WDYb7af3dSLVWKi3HGv84IdF4TyFoC0ysxFd0Goxw7nSv4T/PzEJQxsYsEiFCKo2BA==}
     engines: {node: '>=8.6'}
+
+  mime-db@1.54.0:
+    resolution: {integrity: sha512-aU5EJuIN2WDemCcAp2vFBfp/m4EAhWJnUNSSw0ixs7/kXbd6Pg64EmwJkNdFhB8aWt1sH2CTXrLxo/iAGV3oPQ==}
+    engines: {node: '>= 0.6'}
+
+  mime-types@3.0.1:
+    resolution: {integrity: sha512-xRc4oEhT6eaBpU1XF7AjpOFD+xQmXNB5OVKwp4tqCuBpHLS/ZbBDrc07mYTDqVMg6PfxUjjNp85O6Cd2Z/5HWA==}
+    engines: {node: '>= 0.6'}
 
   mimic-function@5.0.1:
     resolution: {integrity: sha512-VP79XUPxV2CigYP3jWwAUFSku2aKqBH7uTAapFWCBqutsbmDo96KY5o8uh6U+/YSIn5OxJnXp73beVkpqMIGhA==}
@@ -2442,6 +2459,8 @@ snapshots:
 
   '@types/json-schema@7.0.15': {}
 
+  '@types/mime-types@2.1.4': {}
+
   '@types/node@12.20.55': {}
 
   '@types/node@22.15.21':
@@ -3288,6 +3307,12 @@ snapshots:
     dependencies:
       braces: 3.0.3
       picomatch: 2.3.1
+
+  mime-db@1.54.0: {}
+
+  mime-types@3.0.1:
+    dependencies:
+      mime-db: 1.54.0
 
   mimic-function@5.0.1: {}
 

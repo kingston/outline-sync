@@ -1,7 +1,12 @@
+import mime, { extension } from 'mime-types';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import createClient from 'openapi-fetch';
 
 import type { DocumentCollection } from '@src/types/collections.js';
 import type { Document, DocumentWithOrder } from '@src/types/documents.js';
+
+import { downloadFile, uploadFile } from '@src/utils/file-transfer.js';
 
 import type { paths } from './generated/outline-openapi.d.js';
 
@@ -28,6 +33,13 @@ export interface DocumentCollectionDocumentNode {
   title: string;
   url: string;
   children: DocumentCollectionDocumentNode[];
+}
+
+export interface DocumentAttachment {
+  url: string;
+  name: string;
+  contentType: string;
+  size: number;
 }
 
 /**
@@ -150,6 +162,7 @@ export class OutlineService {
     params: {
       title?: string;
       text?: string;
+      publish?: boolean;
     },
   ): Promise<Document> {
     const { data, error } = await this.client.POST('/documents.update', {
@@ -159,6 +172,71 @@ export class OutlineService {
       throw new Error(`Failed to update document: ${error.error}`);
     }
     return data.data;
+  }
+
+  /**
+   * Upload an attachment to a document
+   *
+   * @param params - The parameters for the attachment
+   * @param params.documentId - The ID of the document to upload the attachment to
+   * @param params.filePath - The path to the file to upload
+   * @returns The attachment
+   */
+  async uploadAttachment(params: {
+    documentId: string;
+    filePath: string;
+  }): Promise<DocumentAttachment> {
+    const file = await fs.stat(params.filePath);
+    const filename = path.basename(params.filePath);
+    const { data, error } = await this.client.POST('/attachments.create', {
+      body: {
+        documentId: params.documentId,
+        name: filename,
+        contentType: mime.lookup(filename) || 'application/octet-stream',
+        size: file.size,
+      },
+    });
+
+    if (error) {
+      throw new Error(`Failed to create attachment: ${error.error}`);
+    }
+    await uploadFile(data.data.form.url, data.data.form, params.filePath);
+
+    return data.data.attachment;
+  }
+
+  /**
+   * Download an attachment to a directory
+   *
+   * @param attachmentId - The ID of the attachment
+   * @param attachmentDirectory - The path to save the downloaded file
+   */
+  async downloadAttachmentToDirectory(
+    attachmentId: string,
+    attachmentDirectory: string,
+  ): Promise<string> {
+    const response = await this.client.POST('/attachments.redirect', {
+      body: { id: attachmentId },
+      redirect: 'manual',
+    });
+    const location = response.response.headers.get('Location');
+    if (!location) {
+      throw new Error('No location in response');
+    }
+    const locationUrl = new URL(location);
+    const fileExtension =
+      path.extname(locationUrl.pathname) ||
+      extension(
+        response.response.headers.get('Content-Type') ??
+          'application/octet-stream',
+      ) ||
+      '.bin';
+    const filePath = path.join(
+      attachmentDirectory,
+      `${attachmentId}${fileExtension}`,
+    );
+    await downloadFile(location, filePath);
+    return filePath;
   }
 }
 

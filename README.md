@@ -8,6 +8,7 @@ A tool for syncing documentation from [Outline](https://www.getoutline.com/) to 
 - 📤 **Upload changes** back to Outline
 - 🎯 **Selective sync** with collection filtering
 - 📁 **Organized structure** with nested folders matching your Outline hierarchy
+- 🖼️ **Image support** - automatically download and upload embedded images
 - 🤖 **AI-friendly** format for LLMs like Claude to read and interact with docs
 - ⚡ **Static site ready** - works perfectly with Astro Starlight and other generators
 - 🔄 **Bidirectional sync** - download from and upload to Outline
@@ -63,6 +64,8 @@ export default {
     skipMetadata: false,
     // Clean up removed documents after download (defaults to true)
     cleanupAfterDownload: true,
+    // Download and upload embedded images (defaults to true)
+    includeImages: true,
   },
 };
 ```
@@ -163,6 +166,9 @@ After syncing, your documentation will be organized as:
 docs/
 ├── collection-name/
 │   ├── document-title.md
+│   ├── document-title/
+│   │   ├── 4fba1872-7f67-42ac-9d4b-5712197d0253.png
+│   │   └── another-uuid.jpg
 │   ├── nested-collection/
 │   │   └── another-document.md
 │   └── _metadata.json
@@ -175,6 +181,39 @@ Each markdown file includes:
 - Frontmatter with document metadata (id, title, description)
 - The document content in clean markdown
 - Preserved formatting and structure
+
+## Image Support
+
+When `includeImages` is enabled (default), outline-sync automatically handles embedded images:
+
+### Download
+- Detects all images embedded in Outline documents
+- Downloads images to a folder named after the document
+- Converts Outline attachment URLs to relative paths in markdown
+- Preserves image captions and alt text
+
+### Upload
+- Detects relative image paths in your local markdown files
+- Automatically uploads new images to Outline
+- Restores existing Outline attachment URLs (based on UUID filenames)
+- Handles image uploads for both new and existing documents
+
+### Example
+
+Outline document with image:
+```markdown
+![Architecture Diagram](/api/attachments.redirect?id=4fba1872-7f67-42ac-9d4b-5712197d0253)
+```
+
+Downloaded as:
+```markdown
+![Architecture Diagram](./document-title/4fba1872-7f67-42ac-9d4b-5712197d0253.png)
+```
+
+The image file is saved to:
+```
+docs/collection-name/document-title/4fba1872-7f67-42ac-9d4b-5712197d0253.png
+```
 
 ## Environment Variables
 

@@ -1,9 +1,14 @@
 import chalk from 'chalk';
+import fs from 'node:fs/promises';
 import path from 'node:path';
 import ora from 'ora';
 
 import type { DocumentCollection } from '@src/types/collections.js';
 
+import {
+  parseAttachments,
+  transformMarkdownImages,
+} from '@src/services/attachments.js';
 import { getDocumentsForCollection } from '@src/services/documents.js';
 import {
   cleanupUnwrittenFiles,
@@ -41,7 +46,7 @@ export async function downloadCommand(
 
     const outputDir = options.dir ?? config.outputDir;
     const includeMetadata = !config.behavior.skipMetadata;
-    const { cleanupAfterDownload } = config.behavior;
+    const { cleanupAfterDownload, includeImages } = config.behavior;
 
     spinner.text = 'Fetching collections...';
     const allCollections = await outlineService.getCollections();
@@ -68,6 +73,7 @@ export async function downloadCommand(
         collection,
         includeMetadata,
         cleanupAfterDownload,
+        includeImages,
       );
     }
 
@@ -86,6 +92,7 @@ async function downloadCollection(
   collection: DocumentCollectionWithConfig,
   includeMetadata: boolean,
   cleanupAfterDownload: boolean,
+  includeImages: boolean,
 ): Promise<void> {
   const spinner = ora(`Downloading collection: ${collection.name}`).start();
 
@@ -122,9 +129,11 @@ async function downloadCollection(
         collection,
         outputDir: collectionDir,
         includeMetadata,
+        includeImages,
         orderCounter,
         existingDocsIndex,
         writtenPaths,
+        outlineService,
       });
       downloadedCount += written;
     }
@@ -157,17 +166,21 @@ async function writeDocumentRecursive({
   collection,
   outputDir,
   includeMetadata,
+  includeImages,
   orderCounter,
   existingDocsIndex,
   writtenPaths,
+  outlineService,
 }: {
   hierarchyDoc: DocumentWithChildren;
   collection: DocumentCollection;
   outputDir: string;
   includeMetadata: boolean;
+  includeImages: boolean;
   orderCounter: { lastOrder: number };
   existingDocsIndex: Map<string, DocumentFrontmatter>;
   writtenPaths: Set<string>;
+  outlineService: OutlineService;
 }): Promise<{ written: number }> {
   // Determine file path based on whether it has children
   const newParentPath = path.join(
@@ -196,8 +209,58 @@ async function writeDocumentRecursive({
     };
   }
 
+  // Process images if enabled
+  let documentContent = hierarchyDoc.text;
+  if (includeImages) {
+    const attachments = parseAttachments(documentContent);
+
+    const imageDir = path.join(outputDir, 'images');
+    let imageFiles: string[] = [];
+    if (attachments.length > 0) {
+      await fs.mkdir(imageDir, { recursive: true });
+      imageFiles = await fs.readdir(imageDir);
+    }
+
+    // Download each attachment
+    const attachmentsWithPaths = await Promise.all(
+      attachments.map(async (attachment) => {
+        // Check if the attachment already exists
+        const existingAttachment = imageFiles.find((file) =>
+          file.startsWith(attachment.id),
+        );
+        let filePath: string;
+        // Don't download the attachment if it already exists
+        if (existingAttachment) {
+          filePath = path.join(imageDir, existingAttachment);
+          writtenPaths.add(filePath);
+        } else {
+          filePath = await outlineService.downloadAttachmentToDirectory(
+            attachment.id,
+            imageDir,
+          );
+        }
+
+        writtenPaths.add(filePath);
+
+        return { ...attachment, localPath: filePath };
+      }),
+    );
+
+    // Transform markdown to use local paths
+    documentContent = transformMarkdownImages(
+      documentContent,
+      attachmentsWithPaths,
+      path.dirname(filePath),
+    );
+
+    // Add image directory to written paths
+    if (attachments.length > 0) {
+      writtenPaths.add(imageDir);
+    }
+  }
+
   // Write document file
-  await writeDocumentFile(filePath, hierarchyDoc.text, metadata);
+  await writeDocumentFile(filePath, documentContent, metadata);
   writtenPaths.add(filePath);
 
   // Add parent directory to written paths if it's a nested document
@@ -215,9 +278,11 @@ async function writeDocumentRecursive({
       collection,
       outputDir: newParentPath,
       includeMetadata,
+      includeImages,
       orderCounter,
       existingDocsIndex,
       writtenPaths,
+      outlineService,
     });
     writtenCount += written;
   }

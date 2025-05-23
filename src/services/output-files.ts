@@ -65,9 +65,15 @@ async function readCollectionFilesForDirectory(
       // look for index.md in the directory
       const indexPath = path.join(fullPath, 'index.md');
       if (!(await fileExists(indexPath))) {
-        throw new Error(
-          `Index file ${indexPath} not found. All subdirectories must have an index.md file.`,
-        );
+        // check if there are other md files in the directory
+        const otherMdFiles = await fs.readdir(fullPath);
+        if (otherMdFiles.some((file) => file.endsWith('.md'))) {
+          throw new Error(
+            `Index file ${indexPath} not found. All subdirectories with md files must have an index.md file.`,
+          );
+        } else {
+          continue;
+        }
       }
       const indexDocument = await readDocumentFile(
         indexPath,
