@@ -187,12 +187,14 @@ Each markdown file includes:
 When `includeImages` is enabled (default), outline-sync automatically handles embedded images:
 
 ### Download
+
 - Detects all images embedded in Outline documents
 - Downloads images to a folder named after the document
 - Converts Outline attachment URLs to relative paths in markdown
 - Preserves image captions and alt text
 
 ### Upload
+
 - Detects relative image paths in your local markdown files
 - Automatically uploads new images to Outline
 - Restores existing Outline attachment URLs (based on UUID filenames)
@@ -201,18 +203,21 @@ When `includeImages` is enabled (default), outline-sync automatically handles em
 ### Example
 
 Outline document with image:
+
 ```markdown
 ![Architecture Diagram](/api/attachments.redirect?id=4fba1872-7f67-42ac-9d4b-5712197d0253)
 ```
 
 Downloaded as:
+
 ```markdown
-![Architecture Diagram](./document-title/4fba1872-7f67-42ac-9d4b-5712197d0253.png)
+![Architecture Diagram](./images/4fba1872-7f67-42ac-9d4b-5712197d0253.png)
 ```
 
 The image file is saved to:
+
 ```
-docs/collection-name/document-title/4fba1872-7f67-42ac-9d4b-5712197d0253.png
+docs/collection-name/images/4fba1872-7f67-42ac-9d4b-5712197d0253.png
 ```
 
 ## Environment Variables

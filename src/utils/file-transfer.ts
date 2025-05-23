@@ -18,6 +18,7 @@ export async function uploadFile(
     method: 'POST',
     body: fileStream,
     headers,
+    duplex: 'half',
   });
   if (!response.ok) {
     throw new Error(`Failed to upload file: ${response.statusText}`);

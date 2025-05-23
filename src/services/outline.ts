@@ -200,7 +200,7 @@ export class OutlineService {
     if (error) {
       throw new Error(`Failed to create attachment: ${error.error}`);
     }
-    await uploadFile(data.data.form.url, data.data.form, params.filePath);
+    await uploadFile(data.data.uploadUrl, data.data.form, params.filePath);
 
     return data.data.attachment;
   }
