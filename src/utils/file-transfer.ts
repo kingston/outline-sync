@@ -3,25 +3,40 @@ import { Readable } from 'node:stream';
 import { finished } from 'node:stream/promises';
 
 /**
- * Upload a file to a given URL
+ * Upload a file to a given URL using FormData (for S3 presigned URLs)
  * @param uploadUrl - The URL to upload the file to
- * @param headers - The headers to send with the request
+ * @param formFields - The form fields to include with the upload
  * @param filePath - The path to the file to upload
  */
 export async function uploadFile(
   uploadUrl: string,
-  headers: Record<string, string>,
+  formFields: Record<string, string>,
   filePath: string,
 ): Promise<void> {
-  const fileStream = fs.createReadStream(filePath);
+  // Read the file as a buffer
+  const fileBuffer = await fs.promises.readFile(filePath);
+  const fileName = filePath.split('/').pop() ?? 'file';
+  
+  // Create FormData and append fields
+  const formData = new FormData();
+  
+  // Add all form fields first (order matters for S3)
+  for (const [key, value] of Object.entries(formFields)) {
+    formData.append(key, value);
+  }
+  
+  // Add the file last (required by S3)
+  const blob = new Blob([fileBuffer]);
+  formData.append('file', blob, fileName);
+  
   const response = await fetch(uploadUrl, {
     method: 'POST',
-    body: fileStream,
-    headers,
-    duplex: 'half',
+    body: formData,
   });
+  
   if (!response.ok) {
-    throw new Error(`Failed to upload file: ${response.statusText}`);
+    const responseText = await response.text();
+    throw new Error(`Failed to upload file: ${response.status.toString()} ${response.statusText} - ${responseText}`);
   }
 }
 

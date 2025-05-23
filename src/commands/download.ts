@@ -214,7 +214,7 @@ async function writeDocumentRecursive({
   if (includeImages) {
     const attachments = parseAttachments(documentContent);
 
-    const imageDir = path.join(outputDir, 'images');
+    const imageDir = path.join(path.dirname(filePath), 'images');
     let imageFiles: string[] = [];
     if (attachments.length > 0) {
       await fs.mkdir(imageDir, { recursive: true });

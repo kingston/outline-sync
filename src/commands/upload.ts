@@ -122,12 +122,18 @@ async function processCollectionFiles(
         }
       } catch (error) {
         errorCount++;
-        console.info(
-          chalk.red(`  ✗ Failed: ${file.filePath} - ${String(error)}`),
-        );
+        console.info(chalk.red(`  ✗ Failed: ${file.filePath}`));
+        console.info(chalk.red(`     ${String(error)}`));
       }
     }),
   );
+
+  if (errorCount > 0) {
+    spinner.fail(
+      `  ${collection.name}: Created ${String(uploadedCount)}, Updated ${String(updatedCount)}, Skipped ${String(skippedCount)}, Errors ${String(errorCount)}`,
+    );
+    return;
+  }
 
   spinner.succeed(
     `  ${collection.name}: Created ${String(uploadedCount)}, Updated ${String(updatedCount)}, Skipped ${String(skippedCount)}, Errors ${String(errorCount)}`,
@@ -217,9 +223,11 @@ async function processImagesInContent(
           replacement,
         );
       } catch (error) {
-        throw new Error(
-          `Failed to upload image ${image.relativePath}: ${String(error)}`,
+        console.error(
+          chalk.red(`\n  ✗ Failed to upload image: ${image.relativePath}`),
         );
+        console.error(chalk.red(`     ${String(error)}`));
+        throw new Error(`Failed to upload image ${image.relativePath}`);
       }
     }
   }
@@ -335,7 +343,10 @@ async function createNewDocument(
     return { status: 'created', document: finalDocument };
   } catch (error) {
     // If image processing fails, update with original content
-    console.warn(`Failed to process images for new document: ${String(error)}`);
+    console.warn(
+      chalk.yellow(`\n  ⚠ Failed to process images for new document`),
+    );
+    console.warn(chalk.yellow(`     ${String(error)}`));
     const fallbackDocument = await outlineService.updateDocument(document.id, {
       text: parsedDoc.content,
     });
