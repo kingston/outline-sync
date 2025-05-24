@@ -39,7 +39,10 @@ export async function downloadCommand(
   options: DownloadOptions,
   collectionNames: string[] = [],
 ): Promise<void> {
-  const spinner = ora('Initializing download...').start();
+  const spinner = ora({
+    hideCursor: false,
+    text: 'Initializing download...',
+  }).start();
 
   try {
     const outlineService = getOutlineService(config.outline.apiUrl);
@@ -94,7 +97,10 @@ async function downloadCollection(
   cleanupAfterDownload: boolean,
   includeImages: boolean,
 ): Promise<void> {
-  const spinner = ora(`Downloading collection: ${collection.name}`).start();
+  const spinner = ora({
+    hideCursor: false,
+    text: `Downloading collection: ${collection.name}`,
+  }).start();
 
   try {
     // Index existing files to preserve descriptions

@@ -87,7 +87,8 @@ async function readCollectionFilesForDirectory(
         ...(await readCollectionFilesForDirectory(
           fullPath,
           collection,
-          indexDocument.metadata.outlineId,
+          // fallback to the file path if the outline ID is not set
+          indexDocument.metadata.outlineId ?? indexDocument.filePath,
         )),
       );
     } else if (entry.isFile() && entry.name.endsWith('.md')) {

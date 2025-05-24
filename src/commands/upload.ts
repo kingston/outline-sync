@@ -2,7 +2,6 @@ import chalk from 'chalk';
 import { stat } from 'node:fs/promises';
 import path from 'node:path';
 import ora from 'ora';
-import pLimit from 'p-limit';
 
 import type { ImageUploadInfo } from '@src/services/attachments.js';
 import type { DocumentCollection } from '@src/types/collections.js';
@@ -22,8 +21,6 @@ import { getOutlineService } from '../services/outline.js';
 import { getCollectionConfigs } from '../utils/collection-filter.js';
 import { directoryExists, writeDocumentFile } from '../utils/file-manager.js';
 
-const limit = pLimit(1);
-
 /**
  * Upload local markdown files to Outline
  */
@@ -31,7 +28,10 @@ export async function uploadCommand(
   config: Config,
   options: UploadOptions,
 ): Promise<void> {
-  const spinner = ora('Initializing upload...').start();
+  const spinner = ora({
+    hideCursor: false,
+    text: 'Initializing upload...',
+  }).start();
 
   try {
     const outlineService = getOutlineService(config.outline.apiUrl);
@@ -89,7 +89,10 @@ async function processCollectionFiles(
   options: UploadOptions,
   includeImages: boolean,
 ): Promise<void> {
-  const spinner = ora(`Processing collection: ${collection.name}`).start();
+  const spinner = ora({
+    hideCursor: false,
+    text: `Processing collection: ${collection.name}`,
+  }).start();
 
   let uploadedCount = 0;
   let updatedCount = 0;
@@ -98,34 +101,72 @@ async function processCollectionFiles(
 
   const filesToUpload = await readCollectionFiles(collection);
 
-  await Promise.all(
-    filesToUpload.map(async (file) => {
-      try {
-        const result = await limit(async () =>
-          uploadFile(outlineService, file, collection, options, includeImages),
-        );
+  // Map to track file paths to document IDs for parent resolution
+  const filePathToDocumentId = new Map<string, string>();
 
-        switch (result.status) {
-          case 'created': {
-            uploadedCount++;
-            break;
-          }
-          case 'updated': {
-            updatedCount++;
-            break;
-          }
-          case 'skipped': {
-            skippedCount++;
-            break;
-          }
+  // Process documents in order (parents before children)
+  for (const file of filesToUpload) {
+    try {
+      // Resolve parent document ID if it's a file path
+      let resolvedParentId = file.parentDocumentId;
+      if (resolvedParentId && !resolvedParentId.includes('-')) {
+        // This looks like a file path, not a document ID
+        const parentDocId = filePathToDocumentId.get(resolvedParentId);
+        if (parentDocId) {
+          resolvedParentId = parentDocId;
+        } else {
+          // Parent hasn't been created yet - this shouldn't happen with proper ordering
+          throw new Error(
+            `Parent document not found for file path: ${resolvedParentId}`,
+          );
         }
-      } catch (error) {
-        errorCount++;
-        console.info(chalk.red(`  ✗ Failed: ${file.filePath}`));
-        console.info(chalk.red(`     ${String(error)}`));
       }
-    }),
-  );
+
+      const fileWithResolvedParent = {
+        ...file,
+        parentDocumentId: resolvedParentId,
+      };
+
+      const result = await uploadFile(
+        outlineService,
+        fileWithResolvedParent,
+        collection,
+        options,
+        includeImages,
+      );
+
+      switch (result.status) {
+        case 'created': {
+          uploadedCount++;
+          // Track the mapping from file path to document ID
+          filePathToDocumentId.set(file.filePath, result.document.id);
+          break;
+        }
+        case 'updated': {
+          updatedCount++;
+          // Also track for updated documents
+          filePathToDocumentId.set(file.filePath, result.document.id);
+          break;
+        }
+        case 'skipped': {
+          skippedCount++;
+          // For skipped documents with outline IDs, still track them
+          if (file.metadata.outlineId) {
+            filePathToDocumentId.set(file.filePath, file.metadata.outlineId);
+          } else if (result.document) {
+            filePathToDocumentId.set(file.filePath, result.document.id);
+          }
+          break;
+        }
+      }
+
+      spinner.text = `Processing ${collection.name}: Created ${String(uploadedCount)}, Updated ${String(updatedCount)}, Skipped ${String(skippedCount)}`;
+    } catch (error) {
+      errorCount++;
+      console.info(chalk.red(`\n  ✗ Failed: ${file.filePath}`));
+      console.info(chalk.red(`     ${String(error)}`));
+    }
+  }
 
   if (errorCount > 0) {
     spinner.fail(
@@ -141,6 +182,7 @@ async function processCollectionFiles(
 
 interface UploadSkippedResult {
   status: 'skipped';
+  document?: Document;
 }
 
 interface UploadCreatedResult {
@@ -172,9 +214,15 @@ async function uploadFile(
     return { status: 'skipped' };
   }
 
+  // Get the document from Outline if it exists
+  const document =
+    file.metadata.outlineId === undefined
+      ? undefined
+      : await outlineService.getDocument(file.metadata.outlineId);
+
   // If document has metadata, use it for upload
-  return file.metadata.outlineId
-    ? updateExistingDocument(outlineService, file, includeImages)
+  return document
+    ? updateExistingDocument(outlineService, file, document, includeImages)
     : createNewDocument(
         outlineService,
         file,
@@ -240,26 +288,18 @@ async function processImagesInContent(
 async function updateExistingDocument(
   outlineService: OutlineService,
   parsedDoc: ParsedDocument,
+  existingDocument: Document,
   includeImages: boolean,
 ): Promise<UploadResult> {
-  if (!parsedDoc.metadata.outlineId) {
-    throw new Error(`Document ${String(parsedDoc.filePath)} has no outlineId`);
-  }
-
-  // Get the document from Outline
-  const document = await outlineService.getDocument(
-    parsedDoc.metadata.outlineId,
-  );
-
   let documentWasUpdated = false;
 
   // Move document if the document is not in the correct place
   if (
-    document.parentDocumentId !== parsedDoc.parentDocumentId ||
-    document.collectionId !== parsedDoc.collectionId
+    existingDocument.parentDocumentId !== parsedDoc.parentDocumentId ||
+    existingDocument.collectionId !== parsedDoc.collectionId
   ) {
     await outlineService.moveDocument(
-      parsedDoc.metadata.outlineId,
+      existingDocument.id,
       parsedDoc.collectionId,
       parsedDoc.parentDocumentId,
       parsedDoc.relativeIndex,
@@ -281,30 +321,39 @@ async function updateExistingDocument(
     processedContent = await processImagesInContent(
       outlineService,
       processedContent,
-      parsedDoc.metadata.outlineId,
+      existingDocument.id,
       parsedDoc.filePath,
       parsedImages,
     );
   }
 
-  if (document.text.trim() !== processedContent.trim()) {
+  if (existingDocument.text.trim() !== processedContent.trim()) {
     // Update the document
     const updatedDocument = await outlineService.updateDocument(
-      parsedDoc.metadata.outlineId,
+      existingDocument.id,
       {
         title: parsedDoc.metadata.title,
         text: processedContent,
       },
     );
 
+    await writeDocumentFile(
+      parsedDoc.filePath,
+      updatedDocument.text,
+      parsedDoc.metadata,
+    );
+
+    // Wait one second between each upload to avoid rate limiting
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     return { status: 'updated', document: updatedDocument };
   }
 
   if (documentWasUpdated) {
-    return { status: 'updated', document };
+    return { status: 'updated', document: existingDocument };
   }
 
-  return { status: 'skipped' };
+  return { status: 'skipped', document: existingDocument };
 }
 
 /**
@@ -337,10 +386,13 @@ async function createNewDocument(
   });
 
   // Save the document with the new outline ID
-  await writeDocumentFile(parsedDoc.filePath, parsedDoc.content, {
+  await writeDocumentFile(parsedDoc.filePath, document.text, {
     ...parsedDoc.metadata,
     outlineId: document.id,
   });
+
+  // Wait one second between each upload to avoid rate limiting
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 
   if (
     parsedImages.some((image) => !image.isExistingAttachment) ||
@@ -363,6 +415,11 @@ async function createNewDocument(
     const finalDocument = await outlineService.updateDocument(document.id, {
       text: processedContent,
       publish: true,
+    });
+
+    await writeDocumentFile(parsedDoc.filePath, finalDocument.text, {
+      ...parsedDoc.metadata,
+      outlineId: finalDocument.id,
     });
 
     return { status: 'created', document: finalDocument };

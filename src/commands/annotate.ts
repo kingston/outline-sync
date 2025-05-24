@@ -87,7 +87,10 @@ async function annotateCollectionFiles(
   collection: DocumentCollectionWithConfig,
   languageModelConfig: LanguageModelConfig,
 ): Promise<{ updated: number; skipped: number }> {
-  const spinner = ora(`Annotating collection: ${collection.name}`).start();
+  const spinner = ora({
+    hideCursor: false,
+    text: `Annotating collection: ${collection.name}`,
+  }).start();
 
   try {
     // Get all markdown files in the collection

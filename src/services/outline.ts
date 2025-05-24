@@ -95,11 +95,14 @@ export class OutlineService {
   /**
    * Get a document by its ID
    */
-  async getDocument(documentId: string): Promise<Document> {
+  async getDocument(documentId: string): Promise<Document | undefined> {
     const { data, error } = await this.client.POST('/documents.info', {
       body: { id: documentId, shareId: undefined as unknown as string },
     });
     if (error) {
+      if (error.error === 'not_found') {
+        return undefined;
+      }
       throw new Error(`Failed to fetch document: ${error.error}`);
     }
     return {

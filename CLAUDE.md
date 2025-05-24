@@ -7,6 +7,7 @@ This document outlines the coding standards and conventions used in the outline-
 **outline-sync** is a bidirectional synchronization tool that enables 2-way sync between Outline (a documentation/wiki platform) and your local filesystem. It also includes MCP (Model Context Protocol) support for AI assistant integration.
 
 ### Key Features
+
 - Downloads documentation from Outline to local markdown files
 - Uploads local markdown changes back to Outline
 - Handles embedded images (download/upload)
@@ -18,7 +19,7 @@ This document outlines the coding standards and conventions used in the outline-
 
 - **Single Package**: Not a monorepo, but follows similar conventions
 - **Package Manager**: pnpm 10+ (enforced via `only-allow` preinstall hook)
-- **Node Version**: 20+ (specified in engines, Volta pinned to 22.14.0)
+- **Node Version**: 20+ (specified in engines, Volta pinned to 22.16.0)
 - **Module System**: ESM only (`"type": "module"` in package.json)
 
 ## Code Structure
@@ -65,19 +66,21 @@ src/
 
 ### Key Workflows
 
-1. **Download Flow**: 
+1. **Download Flow**:
+
    - Fetches collections from Outline API
    - Builds document hierarchy recursively
    - Downloads document content and embedded images
    - Writes markdown files with frontmatter metadata
 
-2. **Upload Flow**: 
+2. **Upload Flow**:
+
    - Scans local markdown files
    - Parses frontmatter to identify documents
    - Uploads new images to Outline
    - Creates or updates documents via API
 
-3. **MCP Integration**: 
+3. **MCP Integration**:
    - Provides AI assistants with direct access to synced documentation
    - Supports stdio and SSE transports
    - Exposes document resources through standardized protocol
@@ -85,6 +88,7 @@ src/
 ### Configuration
 
 The project uses a JSON-based configuration file with Zod validation:
+
 - `outline-sync.config.json` - Main configuration file
 - Supports collection filtering, output directories, and sync behavior
 - Environment variables can override config values
