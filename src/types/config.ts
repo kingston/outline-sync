@@ -21,17 +21,24 @@ export const behaviorConfigSchema = z.object({
   includeImages: z.boolean().default(true),
 });
 
+export const mcpServerConfigSchema = z.object({
+  transport: z.enum(['stdio', 'sse']).default('stdio'),
+  port: z.number().int().min(1).max(65_535).default(3000),
+});
+
 export const configSchema = z.object({
   outline: outlineConfigSchema.default({}),
   collections: z.array(collectionConfigSchema).default([]),
   outputDir: z.string().min(1).default('docs'),
   behavior: behaviorConfigSchema.default({}),
+  mcp: mcpServerConfigSchema.default({}),
 });
 
 export type OutlineConfig = z.infer<typeof outlineConfigSchema>;
 export type CollectionMcpConfig = z.infer<typeof collectionMcpConfigSchema>;
 export type DocumentCollectionConfig = z.infer<typeof collectionConfigSchema>;
 export type BehaviorConfig = z.infer<typeof behaviorConfigSchema>;
+export type McpServerConfig = z.infer<typeof mcpServerConfigSchema>;
 export type Config = z.infer<typeof configSchema>;
 
 /**

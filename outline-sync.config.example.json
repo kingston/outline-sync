@@ -1,0 +1,25 @@
+{
+  "outline": {
+    "apiUrl": "https://app.getoutline.com/api"
+  },
+  "collections": [
+    {
+      "urlId": "your-collection-id",
+      "directory": "collection-name",
+      "mcp": {
+        "enabled": false,
+        "readOnly": false
+      }
+    }
+  ],
+  "outputDir": "docs",
+  "behavior": {
+    "skipMetadata": false,
+    "cleanupAfterDownload": true,
+    "includeImages": true
+  },
+  "mcp": {
+    "transport": "stdio",
+    "port": 3000
+  }
+}

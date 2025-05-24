@@ -19,13 +19,15 @@
     "release": "pnpm build && pnpm changeset publish",
     "start": "tsx src/index.ts",
     "test": "pnpm test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "watch": "tsx watch src/index.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",
     "chalk": "^5.4.1",
     "commander": "^14.0.0",
     "dotenv": "^16.5.0",
+    "express": "^5.1.0",
     "gray-matter": "^4.0.3",
     "mime-types": "^3.0.1",
     "openapi-fetch": "^0.14.0",
@@ -38,6 +40,7 @@
     "@changesets/cli": "2.29.4",
     "@ktam/lint-node": "0.4.0",
     "@tsconfig/node20": "^20.0.0",
+    "@types/express": "^5.0.2",
     "@types/mime-types": "^2.1.4",
     "@types/node": "^22.0.0",
     "eslint": "^9.27.0",

@@ -5,6 +5,7 @@ import { ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { DocumentCollectionWithConfig } from '@src/utils/collection-filter.js';
 
 import { readCollectionFiles } from '@src/services/output-files.js';
+import { createSafeFilename } from '@src/utils/file-manager.js';
 
 export function setupMcpDocumentResource(
   server: McpServer,
@@ -12,13 +13,14 @@ export function setupMcpDocumentResource(
 ): void {
   server.resource(
     'document',
-    new ResourceTemplate('documents://{collectionId}/{documentPath*}', {
+    new ResourceTemplate('documents://{collectionKey}/{documentPath}', {
       list: async () => {
         const documentArrays = await Promise.all(
           collections.map(async (collection) => {
             const documents = await readCollectionFiles(collection);
+            const collectionKey = createSafeFilename(collection.name);
             return documents.map((document) => ({
-              uri: `documents://${document.filePath}`,
+              uri: `documents://${collectionKey}/${createSafeFilename(document.relativePath)}`,
               name: document.metadata.title,
               description: document.metadata.description,
               mimeType: 'text/markdown',
@@ -30,22 +32,26 @@ export function setupMcpDocumentResource(
         };
       },
     }),
-    async (uri, { collectionId, documentPath }) => {
+    async (uri, { collectionKey, documentPath }) => {
       if (typeof documentPath !== 'string') {
         throw new TypeError(`Document path must be a string`);
       }
-      if (typeof collectionId !== 'string') {
-        throw new TypeError(`Collection ID must be a string`);
+      if (typeof collectionKey !== 'string') {
+        throw new TypeError(`Collection key must be a string`);
       }
+
       const collection = collections.find(
-        (collection) => collection.id === collectionId,
+        (collection) => createSafeFilename(collection.name) === collectionKey,
       );
       if (!collection) {
-        throw new Error(`Collection not found: ${collectionId}`);
+        throw new Error(`Collection not found: ${collectionKey}`);
       }
+
       const documents = await readCollectionFiles(collection);
+
       const document = documents.find(
-        (document) => document.relativePath === documentPath,
+        (document) =>
+          createSafeFilename(document.relativePath) === documentPath,
       );
       if (!document) {
         throw new Error(`Document not found: ${documentPath}`);
