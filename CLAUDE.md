@@ -2,12 +2,92 @@
 
 This document outlines the coding standards and conventions used in the outline-sync project. These guidelines ensure consistency and help maintain high code quality.
 
+## Project Overview
+
+**outline-sync** is a bidirectional synchronization tool that enables 2-way sync between Outline (a documentation/wiki platform) and your local filesystem. It also includes MCP (Model Context Protocol) support for AI assistant integration.
+
+### Key Features
+- Downloads documentation from Outline to local markdown files
+- Uploads local markdown changes back to Outline
+- Handles embedded images (download/upload)
+- Preserves document hierarchy and metadata
+- Supports selective sync with collection filtering
+- MCP server for AI assistant integration
+
 ## Project Structure
 
 - **Single Package**: Not a monorepo, but follows similar conventions
 - **Package Manager**: pnpm 10+ (enforced via `only-allow` preinstall hook)
 - **Node Version**: 20+ (specified in engines, Volta pinned to 22.14.0)
 - **Module System**: ESM only (`"type": "module"` in package.json)
+
+## Code Structure
+
+### Directory Organization
+
+```
+src/
+├── commands/           # CLI command implementations
+│   ├── download.ts     # Downloads collections from Outline to local files
+│   ├── upload.ts       # Uploads local changes back to Outline
+│   └── mcp.ts          # Starts MCP server for AI integration
+│
+├── services/           # Core business logic
+│   ├── outline.ts      # Main Outline API client using OpenAPI types
+│   ├── documents.ts    # Document fetching with hierarchy building
+│   ├── attachments.ts  # Image/attachment handling and markdown processing
+│   ├── output-files.ts # File system operations for collections
+│   └── generated/      # OpenAPI TypeScript definitions
+│
+├── mcp/               # Model Context Protocol server
+│   ├── server.ts      # MCP server implementation (stdio/SSE transports)
+│   ├── resources/     # MCP resource handlers for document access
+│   └── types.ts       # MCP-specific type definitions
+│
+├── types/             # TypeScript type definitions
+│   ├── config.ts      # Configuration schemas using Zod validation
+│   ├── documents.ts   # Document-related types
+│   ├── collections.ts # Collection types
+│   └── index.ts       # Type re-exports
+│
+├── utils/             # Utility functions
+│   ├── config.ts      # Configuration loading and validation
+│   ├── file-manager.ts # File system operations (safe filenames, frontmatter)
+│   ├── file-transfer.ts # HTTP file upload/download utilities
+│   ├── collection-filter.ts # Collection filtering logic
+│   └── version.ts     # Version management
+│
+├── constants/         # Application constants
+│   └── concurrency.ts # Concurrency limits for API requests
+│
+└── index.ts           # Main entry point with CLI setup
+```
+
+### Key Workflows
+
+1. **Download Flow**: 
+   - Fetches collections from Outline API
+   - Builds document hierarchy recursively
+   - Downloads document content and embedded images
+   - Writes markdown files with frontmatter metadata
+
+2. **Upload Flow**: 
+   - Scans local markdown files
+   - Parses frontmatter to identify documents
+   - Uploads new images to Outline
+   - Creates or updates documents via API
+
+3. **MCP Integration**: 
+   - Provides AI assistants with direct access to synced documentation
+   - Supports stdio and SSE transports
+   - Exposes document resources through standardized protocol
+
+### Configuration
+
+The project uses a JSON-based configuration file with Zod validation:
+- `outline-sync.config.json` - Main configuration file
+- Supports collection filtering, output directories, and sync behavior
+- Environment variables can override config values
 
 ## File Naming Conventions
 
