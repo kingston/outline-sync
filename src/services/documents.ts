@@ -18,7 +18,7 @@ const limit = pLimit(REQUEST_CONCURRENCY);
 async function fetchDocument(
   outlineService: OutlineService,
   documentId: string,
-): Promise<Document> {
+): Promise<Document | undefined> {
   return limit(async () => outlineService.getDocument(documentId));
 }
 
@@ -29,6 +29,9 @@ async function buildDocumentHierarchy(
   return Promise.all(
     documentStructure.map(async (node) => {
       const document = await fetchDocument(outlineService, node.id);
+      if (!document) {
+        throw new Error(`Document ${node.id} not found`);
+      }
       const children = await buildDocumentHierarchy(
         outlineService,
         node.children,

@@ -262,9 +262,9 @@ async function processImagesInContent(
           filePath: imageFullPath,
         });
 
-        // Replace the relative path with the attachment URL
-        const originalPattern = `![${image.caption}](./${image.relativePath})`;
-        const replacement = `![${image.caption}](${attachment.url})`;
+        // Replace the relative path with the attachment URL (preserving annotations)
+        const originalPattern = `![${image.caption}](./${image.relativePath}${image.annotations ?? ''})`;
+        const replacement = `![${image.caption}](${attachment.url}${image.annotations ?? ''})`;
         processedContent = processedContent.replace(
           originalPattern,
           replacement,

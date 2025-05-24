@@ -1,11 +1,11 @@
 import path from 'node:path';
 
-// Regex to match attachment URLs in markdown
+// Regex to match attachment URLs in markdown (including optional annotations like dimensions)
 const ATTACHMENT_REGEX =
-  /!\[([^\]]*)\]\(\/api\/attachments\.redirect\?id=([a-f0-9-]+)\)/g;
+  /!\[([^\]]*)\]\(\/api\/attachments\.redirect\?id=([a-f0-9-]+)([^)]*)\)/g;
 
-// Regex to match relative image paths
-const RELATIVE_IMAGE_REGEX = /!\[([^\]]*)\]\(\.\/([^)]+)\)/g;
+// Regex to match relative image paths (including optional annotations)
+const RELATIVE_IMAGE_REGEX = /!\[([^\]]*)\]\(\.\/([^)\s]+)([^)]*)\)/g;
 
 // UUID v4 regex pattern
 const UUID_REGEX =
@@ -16,6 +16,7 @@ export interface AttachmentInfo {
   caption: string;
   originalUrl: string;
   localPath: string;
+  annotations?: string;
 }
 
 export interface ImageUploadInfo {
@@ -23,6 +24,7 @@ export interface ImageUploadInfo {
   relativePath: string;
   isExistingAttachment: boolean;
   attachmentId?: string;
+  annotations?: string;
 }
 
 /**
@@ -35,6 +37,7 @@ export function parseAttachments(
   let match;
 
   while ((match = ATTACHMENT_REGEX.exec(content)) !== null) {
+    const annotations = match[3];
     attachments.push({
       id: match[2],
       caption: match[1],
@@ -42,6 +45,7 @@ export function parseAttachments(
         match[0].indexOf('(') + 1,
         match[0].lastIndexOf(')'),
       ),
+      annotations: annotations || undefined,
     });
   }
 
@@ -57,6 +61,7 @@ export function parseRelativeImages(content: string): ImageUploadInfo[] {
 
   while ((match = RELATIVE_IMAGE_REGEX.exec(content)) !== null) {
     const relativePath = match[2];
+    const annotations = match[3];
     const filename = relativePath.split('/').pop() ?? '';
     const nameWithoutExt = filename.slice(0, filename.lastIndexOf('.'));
 
@@ -68,6 +73,7 @@ export function parseRelativeImages(content: string): ImageUploadInfo[] {
       relativePath,
       isExistingAttachment,
       attachmentId: isExistingAttachment ? nameWithoutExt : undefined,
+      annotations: annotations || undefined,
     });
   }
 
@@ -90,7 +96,7 @@ export function transformMarkdownImages(
       ? localPath
       : `./${localPath}`;
     const originalPattern = `![${attachment.caption}](${attachment.originalUrl})`;
-    const replacement = `![${attachment.caption}](${relativePath})`;
+    const replacement = `![${attachment.caption}](${relativePath}${attachment.annotations ?? ''})`;
     transformed = transformed.replace(originalPattern, replacement);
   }
 
@@ -108,8 +114,8 @@ export function transformMarkdownToAttachments(
 
   for (const image of images) {
     if (image.isExistingAttachment && image.attachmentId) {
-      const originalPattern = `![${image.caption}](./${image.relativePath})`;
-      const replacement = `![${image.caption}](/api/attachments.redirect?id=${image.attachmentId})`;
+      const originalPattern = `![${image.caption}](./${image.relativePath}${image.annotations ?? ''})`;
+      const replacement = `![${image.caption}](/api/attachments.redirect?id=${image.attachmentId}${image.annotations ?? ''})`;
       transformed = transformed.replace(originalPattern, replacement);
     }
   }
