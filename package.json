@@ -9,6 +9,12 @@
   "license": "MIT",
   "author": "Kingston Tam",
   "type": "module",
+  "bin": {
+    "outline-sync": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "generate:openapi": "openapi-typescript https://raw.githubusercontent.com/outline/openapi/refs/heads/main/spec3.yml -o ./src/services/generated/outline-openapi.d.ts --properties-required-by-default",
@@ -44,7 +50,7 @@
     "@tsconfig/node20": "^20.0.0",
     "@types/express": "^5.0.2",
     "@types/mime-types": "^2.1.4",
-    "@types/node": "^22.0.0",
+    "@types/node": "^20.0.0",
     "eslint": "^9.27.0",
     "openapi-typescript": "^7.8.0",
     "prettier": "^3.5.3",
