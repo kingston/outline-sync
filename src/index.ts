@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 
 import type { DownloadOptions, UploadOptions } from './types/config.js';
 
+import { annotateCommand } from './commands/annotate.js';
 import { downloadCommand } from './commands/download.js';
 import { mcpCommand } from './commands/mcp.js';
 import { uploadCommand } from './commands/upload.js';
@@ -76,6 +77,16 @@ program
     const config = await loadConfig(program.opts<GlobalOptions>().config);
 
     await mcpCommand(config);
+  });
+
+// Annotate command
+program
+  .command('annotate')
+  .description('Annotate markdown files with title and description')
+  .action(async () => {
+    const config = await loadConfig(program.opts<GlobalOptions>().config);
+
+    await annotateCommand(config);
   });
 
 // Handle unknown commands

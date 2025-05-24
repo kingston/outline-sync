@@ -7,7 +7,6 @@ import pLimit from 'p-limit';
 import type { ImageUploadInfo } from '@src/services/attachments.js';
 import type { DocumentCollection } from '@src/types/collections.js';
 
-import { REQUEST_CONCURRENCY } from '@src/constants/concurrency.js';
 import {
   parseRelativeImages,
   transformMarkdownToAttachments,
@@ -21,9 +20,9 @@ import type { DocumentCollectionWithConfig } from '../utils/collection-filter.js
 
 import { getOutlineService } from '../services/outline.js';
 import { getCollectionConfigs } from '../utils/collection-filter.js';
-import { directoryExists } from '../utils/file-manager.js';
+import { directoryExists, writeDocumentFile } from '../utils/file-manager.js';
 
-const limit = pLimit(REQUEST_CONCURRENCY);
+const limit = pLimit(1);
 
 /**
  * Upload local markdown files to Outline
@@ -335,6 +334,12 @@ async function createNewDocument(
     collectionId: collection.id,
     parentDocumentId,
     publish: true,
+  });
+
+  // Save the document with the new outline ID
+  await writeDocumentFile(parsedDoc.filePath, parsedDoc.content, {
+    ...parsedDoc.metadata,
+    outlineId: document.id,
   });
 
   if (

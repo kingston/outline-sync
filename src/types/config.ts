@@ -26,12 +26,18 @@ export const mcpServerConfigSchema = z.object({
   port: z.number().int().min(1).max(65_535).default(3000),
 });
 
+export const languageModelConfigSchema = z.object({
+  provider: z.enum(['anthropic', 'google', 'openai']),
+  model: z.string().optional(),
+});
+
 export const configSchema = z.object({
   outline: outlineConfigSchema.default({}),
   collections: z.array(collectionConfigSchema).default([]),
   outputDir: z.string().min(1).default('docs'),
   behavior: behaviorConfigSchema.default({}),
   mcp: mcpServerConfigSchema.default({}),
+  languageModel: languageModelConfigSchema.optional(),
 });
 
 export type OutlineConfig = z.infer<typeof outlineConfigSchema>;
@@ -39,6 +45,7 @@ export type CollectionMcpConfig = z.infer<typeof collectionMcpConfigSchema>;
 export type DocumentCollectionConfig = z.infer<typeof collectionConfigSchema>;
 export type BehaviorConfig = z.infer<typeof behaviorConfigSchema>;
 export type McpServerConfig = z.infer<typeof mcpServerConfigSchema>;
+export type LanguageModelConfig = z.infer<typeof languageModelConfigSchema>;
 export type Config = z.infer<typeof configSchema>;
 
 /**

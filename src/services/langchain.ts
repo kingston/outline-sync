@@ -1,0 +1,91 @@
+import type { BaseChatModel } from '@langchain/core/language_models/chat_models';
+
+import type { LanguageModelConfig } from '@src/types/config.js';
+
+function getErrorCode(error: unknown): string | undefined {
+  if (error && typeof error === 'object' && 'code' in error) {
+    const { code } = error as { code: unknown };
+    return typeof code === 'string' ? code : undefined;
+  }
+  return undefined;
+}
+
+export async function getLanguageChatModel(
+  config: LanguageModelConfig,
+): Promise<BaseChatModel> {
+  const { provider, model } = config;
+
+  switch (provider) {
+    case 'anthropic': {
+      try {
+        const { ChatAnthropic } = await import('@langchain/anthropic');
+        const apiKey = process.env.ANTHROPIC_API_KEY;
+        if (!apiKey) {
+          throw new Error(
+            'ANTHROPIC_API_KEY environment variable is required for Anthropic provider',
+          );
+        }
+        return new ChatAnthropic({
+          apiKey,
+          model: model ?? 'claude-sonnet-4-20250514',
+        });
+      } catch (error) {
+        if (getErrorCode(error) === 'MODULE_NOT_FOUND') {
+          throw new Error(
+            '@langchain/anthropic is not installed. Please install it with: npm install @langchain/anthropic',
+          );
+        }
+        throw error;
+      }
+    }
+    case 'google': {
+      try {
+        const { ChatGoogleGenerativeAI } = await import(
+          '@langchain/google-genai'
+        );
+        const apiKey = process.env.GOOGLE_API_KEY;
+        if (!apiKey) {
+          throw new Error(
+            'GOOGLE_API_KEY environment variable is required for Google provider',
+          );
+        }
+        return new ChatGoogleGenerativeAI({
+          apiKey,
+          model: model ?? 'gemini-2.0-flash',
+        });
+      } catch (error) {
+        if (getErrorCode(error) === 'MODULE_NOT_FOUND') {
+          throw new Error(
+            '@langchain/google-genai is not installed. Please install it with: npm install @langchain/google-genai',
+          );
+        }
+        throw error;
+      }
+    }
+    case 'openai': {
+      try {
+        const { ChatOpenAI } = await import('@langchain/openai');
+        const apiKey = process.env.OPENAI_API_KEY;
+        if (!apiKey) {
+          throw new Error(
+            'OPENAI_API_KEY environment variable is required for OpenAI provider',
+          );
+        }
+        return new ChatOpenAI({
+          apiKey,
+          model: model ?? 'gpt-4.1-2025-04-14',
+        });
+      } catch (error) {
+        if (getErrorCode(error) === 'MODULE_NOT_FOUND') {
+          throw new Error(
+            '@langchain/openai is not installed. Please install it with: npm install @langchain/openai',
+          );
+        }
+        throw error;
+      }
+    }
+    default: {
+      throw new Error(`Unknown Language Model Provider: ${provider as string}`);
+    }
+  }
+}

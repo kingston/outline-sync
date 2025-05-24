@@ -67,6 +67,14 @@ export default {
     // Download and upload embedded images (defaults to true)
     includeImages: true,
   },
+
+  // Optional: Language model configuration for AI features
+  languageModel: {
+    // Provider: 'anthropic', 'google', or 'openai'
+    provider: 'anthropic',
+    // Optional: Model name (defaults vary by provider)
+    model: 'claude-3-5-sonnet-20241022',
+  },
 };
 ```
 
@@ -80,6 +88,9 @@ npx outline-sync download
 
 # Upload local changes back to Outline
 npx outline-sync upload
+
+# Annotate documents with AI-generated titles/descriptions
+npx outline-sync annotate
 
 # Use a custom config file
 npx outline-sync download --config ./custom-config.js
@@ -220,16 +231,68 @@ The image file is saved to:
 docs/collection-name/images/4fba1872-7f67-42ac-9d4b-5712197d0253.png
 ```
 
+## AI Features
+
+### Annotate Command
+
+The `annotate` command uses AI to automatically generate titles and descriptions for your markdown documents that are missing this metadata. This is particularly useful after downloading documents from Outline that may not have complete frontmatter.
+
+```bash
+# Annotate all documents in all collections
+npx outline-sync annotate
+```
+
+#### Language Model Support
+
+The annotate command supports multiple language model providers. You'll need to:
+
+1. **Install the provider's package** (optional peer dependencies):
+   ```bash
+   # For Anthropic Claude
+   npm install @langchain/anthropic
+   
+   # For Google Gemini
+   npm install @langchain/google-genai
+   
+   # For OpenAI GPT
+   npm install @langchain/openai
+   ```
+
+2. **Configure the provider** in your config file:
+   ```javascript
+   export default {
+     // ... other config
+     languageModel: {
+       provider: 'anthropic', // or 'google' or 'openai'
+       model: 'claude-3-5-sonnet-20241022', // optional, defaults vary by provider
+     },
+   };
+   ```
+
+3. **Set the appropriate API key** as an environment variable (see Environment Variables section)
+
+The command will:
+- Scan all markdown files in your configured collections
+- Skip files that already have both title and description
+- Use AI to generate appropriate titles and descriptions based on content
+- Update the frontmatter while preserving all other metadata
+
 ## Environment Variables
 
-The tool requires the following environment variable:
+The tool requires the following environment variables:
 
 ```bash
 # .env
+# Required: Your Outline API token
 OUTLINE_API_TOKEN=your-api-token-here
+
+# Optional: API keys for language model providers (needed for annotate command)
+ANTHROPIC_API_KEY=your-anthropic-key-here  # For Anthropic Claude
+GOOGLE_API_KEY=your-google-key-here        # For Google Gemini
+OPENAI_API_KEY=your-openai-key-here        # For OpenAI GPT
 ```
 
-The API token is automatically loaded from the environment. You can use a `.env` file in your project root for local development.
+API tokens are automatically loaded from the environment. You can use a `.env` file in your project root for local development.
 
 ## API Token
 
