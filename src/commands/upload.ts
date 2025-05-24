@@ -252,6 +252,22 @@ async function updateExistingDocument(
     parsedDoc.metadata.outlineId,
   );
 
+  let documentWasUpdated = false;
+
+  // Move document if the document is not in the correct place
+  if (
+    document.parentDocumentId !== parsedDoc.parentDocumentId ||
+    document.collectionId !== parsedDoc.collectionId
+  ) {
+    await outlineService.moveDocument(
+      parsedDoc.metadata.outlineId,
+      parsedDoc.collectionId,
+      parsedDoc.parentDocumentId,
+      parsedDoc.relativeIndex,
+    );
+    documentWasUpdated = true;
+  }
+
   const parsedImages = parseRelativeImages(parsedDoc.content);
   let processedContent = transformMarkdownToAttachments(
     parsedDoc.content,
@@ -272,20 +288,24 @@ async function updateExistingDocument(
     );
   }
 
-  if (document.text.trim() === processedContent.trim()) {
-    return { status: 'skipped' };
+  if (document.text.trim() !== processedContent.trim()) {
+    // Update the document
+    const updatedDocument = await outlineService.updateDocument(
+      parsedDoc.metadata.outlineId,
+      {
+        title: parsedDoc.metadata.title,
+        text: processedContent,
+      },
+    );
+
+    return { status: 'updated', document: updatedDocument };
   }
 
-  // Update the document
-  const updatedDocument = await outlineService.updateDocument(
-    parsedDoc.metadata.outlineId,
-    {
-      title: parsedDoc.metadata.title,
-      text: processedContent,
-    },
-  );
+  if (documentWasUpdated) {
+    return { status: 'updated', document };
+  }
 
-  return { status: 'updated', document: updatedDocument };
+  return { status: 'skipped' };
 }
 
 /**

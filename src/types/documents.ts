@@ -45,6 +45,10 @@ export interface ParsedDocument {
   relativePath: string;
   parentDocumentId?: string;
   collectionId: string;
+  /**
+   * The relative index of the document in the collection or parent directory.
+   */
+  relativeIndex: number;
 }
 
 /**

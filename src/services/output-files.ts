@@ -20,7 +20,7 @@ export async function readDocumentFile(
   filePath: string,
   collection: DocumentCollectionWithConfig,
   parentDocumentId?: string,
-): Promise<ParsedDocument> {
+): Promise<Omit<ParsedDocument, 'relativeIndex'>> {
   const fileContent = await fs.readFile(filePath, 'utf8');
   const parsed = matter(fileContent);
 
@@ -52,7 +52,8 @@ async function readCollectionFilesForDirectory(
   parentDocumentId?: string,
 ): Promise<ParsedDocument[]> {
   const entries = await fs.readdir(dirPath, { withFileTypes: true });
-  const parsedDocuments: ParsedDocument[] = [];
+  const parsedDocuments: Omit<ParsedDocument, 'relativeIndex'>[] = [];
+  const childrenParsedDocuments: ParsedDocument[] = [];
 
   for (const entry of entries) {
     // we've already parsed index.md
@@ -81,8 +82,8 @@ async function readCollectionFilesForDirectory(
         collection,
         parentDocumentId,
       );
-      parsedDocuments.push(
-        indexDocument,
+      parsedDocuments.push(indexDocument);
+      childrenParsedDocuments.push(
         ...(await readCollectionFilesForDirectory(
           fullPath,
           collection,
@@ -96,7 +97,18 @@ async function readCollectionFilesForDirectory(
     }
   }
 
-  return parsedDocuments;
+  return [
+    ...parsedDocuments
+      .toSorted(
+        (a, b) =>
+          (a.metadata.sidebar?.order ?? 0) - (b.metadata.sidebar?.order ?? 0),
+      )
+      .map((doc, index) => ({
+        ...doc,
+        relativeIndex: index,
+      })),
+    ...childrenParsedDocuments,
+  ];
 }
 
 /**

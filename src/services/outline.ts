@@ -102,7 +102,14 @@ export class OutlineService {
     if (error) {
       throw new Error(`Failed to fetch document: ${error.error}`);
     }
-    return data.data;
+    return {
+      id: data.data.id,
+      title: data.data.title,
+      collectionId: data.data.collectionId,
+      text: data.data.text,
+      parentDocumentId:
+        (data.data.parentDocumentId as string | null) ?? undefined,
+    };
   }
 
   /**
@@ -172,6 +179,23 @@ export class OutlineService {
       throw new Error(`Failed to update document: ${error.error}`);
     }
     return data.data;
+  }
+
+  /**
+   * Move a document to a new parent document or collection
+   */
+  async moveDocument(
+    documentId: string,
+    collectionId: string,
+    parentDocumentId: string | undefined,
+    index: number,
+  ): Promise<void> {
+    const { error } = await this.client.POST('/documents.move', {
+      body: { id: documentId, parentDocumentId, collectionId, index },
+    });
+    if (error) {
+      throw new Error(`Failed to move document: ${error.error}`);
+    }
   }
 
   /**
