@@ -232,5 +232,26 @@ pnpm build
 - Import test functions from 'vitest' (no globals)
 - Collocate tests with source files using `.unit.test.ts` or `.int.test.ts` suffixes
 - Run `pnpm lint` and `pnpm typecheck` before committing changes
-- Run one round of linting and typechecking to avoid unnecessary cycles.
 - If a particular interface or type is not exported, change the file so it is exported.
+- Keep tests simple and focused and try to extract repeated logic into helper functions.
+- Apply a reasonable number of tests but
+- If you are adding a new feature, please also add a new Changeset for it in the `.changeset/` directory of the form keeping things to patch changes for now:
+
+  ```
+  ---
+  'outline-sync': <patch|minor|major>
+  ---
+
+  <description of the feature or change>
+  ```
+
+- IMPORTANT: If you have to go through more than one cycle of edits to fix linting, type, or test errors, please stop and ask for help. Often fixing errors will cause worse changes so it's better to ask for help than to continue. Feel free to ask for help at any time for any issues.
+
+# Testing
+
+- To mock the file system, simply add:
+
+```
+vi.mock('node:fs/promises');
+vi.mock('node:fs');
+```
