@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 
+import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
@@ -9,6 +10,7 @@ import type { Config } from '@src/types/config.js';
 import type { DocumentCollectionWithConfig } from '@src/utils/collection-filter.js';
 
 import { setupMcpDocumentResource } from './resources/documents.js';
+import { setupMcpTools } from './tools/index.js';
 
 export class MCPServer {
   private server: McpServer;
@@ -51,6 +53,16 @@ export class MCPServer {
 
     console.info('MCP server started for outline-sync (stdio transport)...');
     this.logExposedCollections();
+  }
+
+  public async startInMemoryTransport(): Promise<InMemoryTransport> {
+    // Register handlers
+    this.registerHandlers();
+
+    const [clientTransport, serverTransport] =
+      InMemoryTransport.createLinkedPair();
+    await this.server.connect(serverTransport);
+    return clientTransport;
   }
 
   private async startSseTransport(): Promise<void> {
@@ -111,5 +123,10 @@ export class MCPServer {
 
   private registerHandlers(): void {
     setupMcpDocumentResource(this.server, this.collections);
+    setupMcpTools(this.server, this.config, this.collections);
+  }
+
+  public close(): Promise<void> {
+    return this.server.close();
   }
 }
