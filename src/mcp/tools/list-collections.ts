@@ -13,34 +13,39 @@ export function setupListCollectionsTool(
   server: McpServer,
   collections: DocumentCollectionWithConfig[],
 ): void {
-  server.tool('list-collections', {}, async () => {
-    const collectionInfos: McpCollectionInfo[] = await Promise.all(
-      collections.map((collection) => {
-        const info: McpCollectionInfo = {
-          name: collection.name,
-          key: collection.urlId,
-          outputDirectory: collection.outputDirectory,
-          readOnly: collection.mcp.readOnly,
-        };
+  server.tool(
+    'list-collections',
+    'List all available Outline collections configured for sync',
+    {},
+    async () => {
+      const collectionInfos: McpCollectionInfo[] = await Promise.all(
+        collections.map((collection) => {
+          const info: McpCollectionInfo = {
+            name: collection.name,
+            key: collection.urlId,
+            outputDirectory: collection.outputDirectory,
+            readOnly: collection.mcp.readOnly,
+          };
 
-        return info;
-      }),
-    );
+          return info;
+        }),
+      );
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(
-            {
-              collections: collectionInfos,
-              total: collectionInfos.length,
-            },
-            null,
-            2,
-          ),
-        },
-      ],
-    };
-  });
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                collections: collectionInfos,
+                total: collectionInfos.length,
+              },
+              null,
+              2,
+            ),
+          },
+        ],
+      };
+    },
+  );
 }

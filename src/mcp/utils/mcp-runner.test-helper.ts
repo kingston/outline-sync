@@ -75,6 +75,7 @@ export async function setupMcpTest({
 
   const cleanup = async (): Promise<void> => {
     await client.close();
+    await server.close();
   };
 
   return {
