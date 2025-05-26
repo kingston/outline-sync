@@ -1,5 +1,12 @@
 # outline-sync
 
+## 0.2.1
+
+### Patch Changes
+
+- ab90a91: Fix pathing aliases with tsc-alias
+- 2dda40f: Remove pnpm preinstall hook
+
 ## 0.2.0
 
 ### Minor Changes
