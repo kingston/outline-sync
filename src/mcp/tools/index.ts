@@ -4,6 +4,7 @@ import type { Config } from '@src/types/config.js';
 import type { DocumentCollectionWithConfig } from '@src/utils/collection-filter.js';
 
 import { setupEditDocumentTool } from './edit-document.js';
+import { setupInlineEditTool } from './inline-edit.js';
 import { setupListCollectionsTool } from './list-collections.js';
 
 export function setupMcpTools(
@@ -13,4 +14,5 @@ export function setupMcpTools(
 ): void {
   setupListCollectionsTool(server, collections);
   setupEditDocumentTool(server, collections);
+  setupInlineEditTool(server, collections);
 }
