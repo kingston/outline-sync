@@ -81,6 +81,7 @@ export function createMockParsedDocument(
     relativePath: faker.system.filePath(),
     collectionId: faker.string.uuid(),
     relativeIndex: faker.number.int(),
+    lastModifiedAt: faker.date.recent(),
     ...overrides,
     metadata: {
       title: faker.lorem.sentence(),
