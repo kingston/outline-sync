@@ -82,6 +82,11 @@ program
   .description('Start MCP server for AI assistant integration')
   .option('-d, --dir <directory>', 'Output directory')
   .option('-c, --collections <ids...>', 'Collection URL IDs to expose via MCP')
+  .option(
+    '--transport <transport>',
+    'MCP server transport (stdio or streamable-http)',
+  )
+  .option('--port <port>', 'MCP server port')
   .action(async (options: McpOptions) => {
     const config = await loadConfig(program.opts<GlobalOptions>().config);
 

@@ -21,7 +21,7 @@ export async function mcpCommand(
   const version = await getPackageVersion();
 
   // Initialize and start MCP server
-  const server = new MCPServer(config, collections, version);
+  const server = new MCPServer(config, collections, version, options);
   await server.start();
 
   // Keep the process running
