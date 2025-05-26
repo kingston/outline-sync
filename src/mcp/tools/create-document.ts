@@ -85,8 +85,7 @@ export function setupCreateDocumentTool(
         .describe('Optional description of the document'),
       content: z.string().describe('The content of the document'),
     },
-    async (params: unknown) => {
-      const createParams = params as CreateDocumentParams;
+    async (createParams) => {
       const result = await mcpCreateDocument(createParams, collections);
 
       return {

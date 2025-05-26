@@ -116,8 +116,7 @@ export function setupInlineEditTool(
         )
         .describe('Array of find-replace commands to apply'),
     },
-    async (params: unknown) => {
-      const editParams = params as InlineEditParams;
+    async (editParams) => {
       const result = await mcpInlineEdit(editParams, collections);
 
       return {

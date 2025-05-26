@@ -8,12 +8,14 @@ import type {
   AnnotateOptions,
   DownloadOptions,
   McpOptions,
+  SearchOptions,
   UploadOptions,
 } from './types/config.js';
 
 import { annotateCommand } from './commands/annotate.js';
 import { downloadCommand } from './commands/download.js';
 import { mcpCommand } from './commands/mcp.js';
+import { searchCommand } from './commands/search.js';
 import { uploadCommand } from './commands/upload.js';
 import { loadConfig } from './utils/config.js';
 
@@ -96,6 +98,24 @@ program
     const config = await loadConfig(program.opts<GlobalOptions>().config);
 
     await annotateCommand(config, options);
+  });
+
+// Search command
+program
+  .command('search <query>')
+  .description('Search through document collections using vector similarity')
+  .option('-d, --dir <directory>', 'Output directory')
+  .option('-c, --collections <ids...>', 'Collection URL IDs to search')
+  .option('--include-contents', 'Include document contents in results')
+  .option('--limit <number>', 'Maximum number of results to return', '5')
+  .action(async (query: string, options: SearchOptions) => {
+    const config = await loadConfig(program.opts<GlobalOptions>().config);
+
+    await searchCommand(config, {
+      ...options,
+      limit: options.limit,
+      query,
+    });
   });
 
 // Handle unknown commands

@@ -28,7 +28,9 @@ export const mcpServerConfigSchema = z.object({
 
 export const languageModelConfigSchema = z.object({
   provider: z.enum(['anthropic', 'google', 'openai']),
+  embeddingsProvider: z.enum(['openai', 'google']).optional(),
   model: z.string().optional(),
+  searchIndexDirectory: z.string().default('.outline-sync'),
 });
 
 export const configSchema = z.object({
@@ -88,4 +90,12 @@ export interface AnnotateOptions {
   dir?: string;
   /** Filter collections by URL IDs */
   collections?: string[];
+}
+
+export interface SearchOptions {
+  dir?: string;
+  collections?: string[];
+  query: string;
+  includeContents?: boolean;
+  limit?: string;
 }

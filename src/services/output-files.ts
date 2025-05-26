@@ -22,6 +22,7 @@ export async function readDocumentFile(
   parentDocumentId?: string,
 ): Promise<Omit<ParsedDocument, 'relativeIndex'>> {
   const fileContent = await fs.readFile(filePath, 'utf8');
+  const fileStat = await fs.stat(filePath);
   const parsed = matter(fileContent);
 
   try {
@@ -32,6 +33,7 @@ export async function readDocumentFile(
       relativePath: path.relative(collection.outputDirectory, filePath),
       collectionId: collection.id,
       parentDocumentId,
+      lastModifiedAt: fileStat.mtime,
     };
   } catch (error) {
     throw new Error(

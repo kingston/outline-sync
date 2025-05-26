@@ -12,6 +12,7 @@ A tool for syncing documentation from [Outline](https://www.getoutline.com/) to 
 - 🤖 **AI-friendly** format for LLMs like Claude to read and interact with docs
 - ⚡ **Static site ready** - works perfectly with Astro Starlight and other generators
 - 🔄 **Bidirectional sync** - download from and upload to Outline
+- 🔍 **Semantic search** - find documents using AI-powered similarity search
 
 ## Installation
 
@@ -91,6 +92,9 @@ npx outline-sync upload
 
 # Annotate documents with AI-generated titles/descriptions
 npx outline-sync annotate
+
+# Search across your Outline collections
+npx outline-sync search "your search query"
 
 # Use a custom config file
 npx outline-sync download --config ./custom-config.js
@@ -279,6 +283,36 @@ The command will:
 - Skip files that already have both title and description
 - Use AI to generate appropriate titles and descriptions based on content
 - Update the frontmatter while preserving all other metadata
+
+### Search Command
+
+The `search` command enables semantic search across your Outline collections using vector embeddings:
+
+```bash
+# Search with default settings (5 results, no content)
+npx outline-sync search "API authentication methods"
+
+# Search with custom limit
+npx outline-sync search "database optimization" --limit 10
+
+# Include document contents in results
+npx outline-sync search "error handling" --include-contents
+
+# Search specific collections
+npx outline-sync search "deployment process" --collections engineering-docs-h3kj5,devops-k2j8d
+```
+
+Features:
+
+- **Semantic search** - Finds documents based on meaning, not just keywords
+- **Fast indexing** - Creates vector embeddings for all documents
+- **Flexible results** - Control result count and whether to include full content
+- **Collection filtering** - Search across all collections or specific ones
+
+Requirements:
+
+- Requires language model configuration in your config file
+- Automatically creates and manages search indexes using FAISS
 
 ## Environment Variables
 

@@ -49,6 +49,10 @@ export interface ParsedDocument {
    * The relative index of the document in the collection or parent directory.
    */
   relativeIndex: number;
+  /**
+   * The last modified date of the document
+   */
+  lastModifiedAt: Date;
 }
 
 /**

@@ -5,7 +5,7 @@ import { vol } from 'memfs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { OutlineService } from '@src/services/outline.js';
-import type { Config } from '@src/types/config.js';
+import type { Config, LanguageModelConfig } from '@src/types/config.js';
 import type { DocumentCollectionWithConfig } from '@src/utils/collection-filter.js';
 
 import { getLanguageChatModel } from '@src/services/langchain.js';
@@ -27,7 +27,10 @@ vi.mock('node:fs/promises');
 vi.mock('ora');
 
 describe('annotate', () => {
-  const mockLanguageModel = { provider: 'openai' } as const;
+  const mockLanguageModel = {
+    provider: 'openai',
+    searchIndexDirectory: '/test/search-index',
+  } as LanguageModelConfig;
   const mockConfig: Config = createMockConfig({
     languageModel: mockLanguageModel,
   });

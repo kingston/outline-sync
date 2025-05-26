@@ -7,14 +7,16 @@ import { setupCreateDocumentTool } from './create-document.js';
 import { setupEditDocumentTool } from './edit-document.js';
 import { setupInlineEditTool } from './inline-edit.js';
 import { setupListCollectionsTool } from './list-collections.js';
+import { setupSearchDocumentsTool } from './search-documents.js';
 
 export function setupMcpTools(
   server: McpServer,
-  _config: Config,
+  config: Config,
   collections: DocumentCollectionWithConfig[],
 ): void {
   setupListCollectionsTool(server, collections);
   setupEditDocumentTool(server, collections);
   setupInlineEditTool(server, collections);
   setupCreateDocumentTool(server, collections);
+  setupSearchDocumentsTool(server, config, collections);
 }

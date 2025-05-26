@@ -136,3 +136,5 @@ dist
 docs/
 
 outline-sync.config.json
+
+.outline-sync/

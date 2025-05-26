@@ -3,6 +3,20 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import { type DocumentFrontmatter } from '../types/documents.js';
+import { handleFileNotFoundError } from './handle-not-found-error.js';
+
+async function writeIfChanged(
+  filePath: string,
+  content: string,
+): Promise<void> {
+  const existingContent = await fs
+    .readFile(filePath, 'utf8')
+    .catch(handleFileNotFoundError);
+  if (existingContent === content) {
+    return;
+  }
+  await fs.writeFile(filePath, content, 'utf8');
+}
 
 /**
  * Write a document to the filesystem with frontmatter
@@ -21,9 +35,9 @@ export async function writeDocumentFile(
       ),
     );
     const fileContent = matter.stringify(content, strippedMetadata);
-    await fs.writeFile(filePath, fileContent, 'utf8');
+    await writeIfChanged(filePath, fileContent);
   } else {
-    await fs.writeFile(filePath, content, 'utf8');
+    await writeIfChanged(filePath, content);
   }
 }
 
