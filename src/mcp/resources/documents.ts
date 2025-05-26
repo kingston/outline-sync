@@ -5,7 +5,7 @@ import { ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { DocumentCollectionWithConfig } from '@src/utils/collection-filter.js';
 
 import { readCollectionFiles } from '@src/services/output-files.js';
-import { createSafeFilename } from '@src/utils/file-manager.js';
+import { createSafeFilename } from '@src/utils/file-names.js';
 
 export function setupMcpDocumentResource(
   server: McpServer,

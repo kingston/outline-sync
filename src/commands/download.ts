@@ -25,11 +25,11 @@ import type { DocumentCollectionWithConfig } from '../utils/collection-filter.js
 
 import { getOutlineService } from '../services/outline.js';
 import { getCollectionConfigs } from '../utils/collection-filter.js';
+import { writeDocumentFile } from '../utils/file-manager.js';
 import {
   createSafeFilename,
   createSafeMarkdownFilename,
-  writeDocumentFile,
-} from '../utils/file-manager.js';
+} from '../utils/file-names.js';
 
 /**
  * Download collections and documents from Outline
@@ -76,7 +76,9 @@ export async function downloadCommand(
       );
     }
 
-    console.info(chalk.green('✓ Download completed successfully!'));
+    if (process.env.NODE_ENV !== 'test') {
+      console.info(chalk.green('✓ Download completed successfully!'));
+    }
   } catch (error) {
     spinner.fail('Download failed');
     throw error;

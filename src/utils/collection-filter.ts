@@ -3,7 +3,7 @@ import path from 'node:path';
 import type { DocumentCollection } from '@src/types/collections.js';
 import type { CollectionMcpConfig, Config } from '@src/types/config.js';
 
-import { createSafeFilename } from './file-manager.js';
+import { createSafeFilename } from './file-names.js';
 
 export interface DocumentCollectionWithConfig extends DocumentCollection {
   outputDirectory: string;
