@@ -13,14 +13,14 @@ export function setupMcpDocumentResource(
 ): void {
   server.resource(
     'document',
-    new ResourceTemplate('documents://{collectionKey}/{documentPath}', {
+    new ResourceTemplate('documents://{collectionKey}/{+documentPath}', {
       list: async () => {
         const documentArrays = await Promise.all(
           collections.map(async (collection) => {
             const documents = await readCollectionFiles(collection);
             const collectionKey = createSafeFilename(collection.name);
             return documents.map((document) => ({
-              uri: `documents://${collectionKey}/${createSafeFilename(document.relativePath)}`,
+              uri: `documents://${collectionKey}/${document.relativePath}`,
               name: document.metadata.title,
               description: document.metadata.description,
               mimeType: 'text/markdown',
@@ -50,8 +50,7 @@ export function setupMcpDocumentResource(
       const documents = await readCollectionFiles(collection);
 
       const document = documents.find(
-        (document) =>
-          createSafeFilename(document.relativePath) === documentPath,
+        (document) => document.relativePath === documentPath,
       );
       if (!document) {
         throw new Error(`Document not found: ${documentPath}`);
