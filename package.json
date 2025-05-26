@@ -46,6 +46,7 @@
   },
   "devDependencies": {
     "@changesets/cli": "2.29.4",
+    "@faker-js/faker": "^9.8.0",
     "@ktam/lint-node": "0.4.0",
     "@tsconfig/node20": "^20.0.0",
     "@types/express": "^5.0.2",

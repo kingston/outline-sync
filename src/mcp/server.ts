@@ -12,6 +12,19 @@ import type { DocumentCollectionWithConfig } from '@src/utils/collection-filter.
 import { setupMcpDocumentResource } from './resources/documents.js';
 import { setupMcpTools } from './tools/index.js';
 
+const sendMethodNotAllowed = (req: Request, res: Response): void => {
+  res.writeHead(405).end(
+    JSON.stringify({
+      jsonrpc: '2.0',
+      error: {
+        code: -32_000,
+        message: 'Method not allowed.',
+      },
+      id: null,
+    }),
+  );
+};
+
 export class MCPServer {
   private server: McpServer;
   private collections: DocumentCollectionWithConfig[];
@@ -40,7 +53,7 @@ export class MCPServer {
 
     if (transport === 'stdio') {
       await this.startStdioTransport();
-    } else if (transport === 'sse') {
+    } else if (transport === 'streamable-http') {
       await this.startSseTransport();
     } else {
       throw new Error(`Unknown transport type: ${transport}`);
@@ -71,6 +84,9 @@ export class MCPServer {
     });
 
     await this.server.connect(transport);
+
+    app.get('/mcp', sendMethodNotAllowed);
+    app.delete('/mcp', sendMethodNotAllowed);
 
     app.post('/mcp', async (req: Request, res: Response) => {
       try {

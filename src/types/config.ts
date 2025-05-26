@@ -22,7 +22,7 @@ export const behaviorConfigSchema = z.object({
 });
 
 export const mcpServerConfigSchema = z.object({
-  transport: z.enum(['stdio', 'sse']).default('stdio'),
+  transport: z.enum(['stdio', 'streamable-http']).default('stdio'),
   port: z.number().int().min(1).max(65_535).default(3000),
 });
 
