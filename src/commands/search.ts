@@ -30,7 +30,10 @@ export async function searchCommand(
     outputDir: options.dir,
   });
 
-  const spinner = ora('Creating search index...').start();
+  const spinner = ora({
+    hideCursor: false,
+    text: 'Creating search index...',
+  }).start();
   let vectorStores: FaissStore[];
   try {
     vectorStores = await createIndexedVectorStoreFromCollections(
