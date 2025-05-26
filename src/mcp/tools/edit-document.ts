@@ -109,8 +109,7 @@ export function setupEditDocumentTool(
           'The new content of the document (if undefined, the content will not be changed)',
         ),
     },
-    async (params: unknown) => {
-      const editParams = params as EditDocumentParams;
+    async (editParams) => {
       const result = await mcpEditDocument(editParams, collections);
 
       return {
