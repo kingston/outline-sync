@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 
+import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
@@ -9,6 +10,20 @@ import type { Config } from '@src/types/config.js';
 import type { DocumentCollectionWithConfig } from '@src/utils/collection-filter.js';
 
 import { setupMcpDocumentResource } from './resources/documents.js';
+import { setupMcpTools } from './tools/index.js';
+
+const sendMethodNotAllowed = (req: Request, res: Response): void => {
+  res.writeHead(405).end(
+    JSON.stringify({
+      jsonrpc: '2.0',
+      error: {
+        code: -32_000,
+        message: 'Method not allowed.',
+      },
+      id: null,
+    }),
+  );
+};
 
 export class MCPServer {
   private server: McpServer;
@@ -24,12 +39,12 @@ export class MCPServer {
       version,
     });
     this.collections = collections.filter((c) => c.mcp.enabled);
+
+    // Register handlers
+    this.registerHandlers();
   }
 
   async start(): Promise<void> {
-    // Register handlers
-    this.registerHandlers();
-
     if (this.collections.length === 0) {
       throw new Error('No collections configured for MCP');
     }
@@ -38,7 +53,7 @@ export class MCPServer {
 
     if (transport === 'stdio') {
       await this.startStdioTransport();
-    } else if (transport === 'sse') {
+    } else if (transport === 'streamable-http') {
       await this.startSseTransport();
     } else {
       throw new Error(`Unknown transport type: ${transport}`);
@@ -53,6 +68,13 @@ export class MCPServer {
     this.logExposedCollections();
   }
 
+  public async startInMemoryTransport(): Promise<InMemoryTransport> {
+    const [clientTransport, serverTransport] =
+      InMemoryTransport.createLinkedPair();
+    await this.server.connect(serverTransport);
+    return clientTransport;
+  }
+
   private async startSseTransport(): Promise<void> {
     const app = express();
     app.use(express.json());
@@ -61,12 +83,10 @@ export class MCPServer {
       sessionIdGenerator: undefined,
     });
 
-    const server = new McpServer({
-      name: 'outline-sync',
-      version: this.version,
-    });
-    setupMcpDocumentResource(server, this.collections);
-    await server.connect(transport);
+    await this.server.connect(transport);
+
+    app.get('/mcp', sendMethodNotAllowed);
+    app.delete('/mcp', sendMethodNotAllowed);
 
     app.post('/mcp', async (req: Request, res: Response) => {
       try {
@@ -88,7 +108,7 @@ export class MCPServer {
 
     app.on('close', () => {
       transport.close().catch(console.error);
-      server.close().catch(console.error);
+      this.server.close().catch(console.error);
     });
 
     const { port } = this.config.mcp;
@@ -111,5 +131,10 @@ export class MCPServer {
 
   private registerHandlers(): void {
     setupMcpDocumentResource(this.server, this.collections);
+    setupMcpTools(this.server, this.config, this.collections);
+  }
+
+  public close(): Promise<void> {
+    return this.server.close();
   }
 }

@@ -3,7 +3,8 @@
     "allow": [
       "Bash(pnpm typecheck:*)",
       "Bash(pnpm lint:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(pnpm test:*)"
     ],
     "deny": []
   }

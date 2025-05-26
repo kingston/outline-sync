@@ -25,11 +25,11 @@ import type { DocumentCollectionWithConfig } from '../utils/collection-filter.js
 
 import { getOutlineService } from '../services/outline.js';
 import { getCollectionConfigs } from '../utils/collection-filter.js';
+import { writeDocumentFile } from '../utils/file-manager.js';
 import {
   createSafeFilename,
   createSafeMarkdownFilename,
-  writeDocumentFile,
-} from '../utils/file-manager.js';
+} from '../utils/file-names.js';
 
 /**
  * Download collections and documents from Outline
@@ -37,7 +37,6 @@ import {
 export async function downloadCommand(
   config: Config,
   options: DownloadOptions,
-  collectionNames: string[] = [],
 ): Promise<void> {
   const spinner = ora({
     hideCursor: false,
@@ -47,18 +46,15 @@ export async function downloadCommand(
   try {
     const outlineService = getOutlineService(config.outline.apiUrl);
 
-    const outputDir = options.dir ?? config.outputDir;
     const includeMetadata = !config.behavior.skipMetadata;
     const { cleanupAfterDownload, includeImages } = config.behavior;
 
     spinner.text = 'Fetching collections...';
     const allCollections = await outlineService.getCollections();
-    const collectionsToDownload = getCollectionConfigs(
-      allCollections,
-      collectionNames,
-      config,
-      outputDir,
-    );
+    const collectionsToDownload = getCollectionConfigs(allCollections, config, {
+      collectionUrlIdsFilter: options.collections,
+      outputDir: options.dir,
+    });
 
     if (collectionsToDownload.length === 0) {
       spinner.fail('No collections found to download');
@@ -80,7 +76,9 @@ export async function downloadCommand(
       );
     }
 
-    console.info(chalk.green('✓ Download completed successfully!'));
+    if (process.env.NODE_ENV !== 'test') {
+      console.info(chalk.green('✓ Download completed successfully!'));
+    }
   } catch (error) {
     spinner.fail('Download failed');
     throw error;

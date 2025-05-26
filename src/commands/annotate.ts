@@ -3,6 +3,7 @@ import type { GrayMatterFile } from 'gray-matter';
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 import { globby } from 'globby';
 import matter from 'gray-matter';
+import fsAdapter from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import ora from 'ora';
@@ -14,7 +15,11 @@ import { getLanguageChatModel } from '@src/services/langchain.js';
 import { getOutlineService } from '@src/services/outline.js';
 import { getCollectionConfigs } from '@src/utils/collection-filter.js';
 
-import type { Config, LanguageModelConfig } from '../types/config.js';
+import type {
+  AnnotateOptions,
+  Config,
+  LanguageModelConfig,
+} from '../types/config.js';
 
 const titleDescriptionSchema = z.object({
   title: z
@@ -27,7 +32,7 @@ const titleDescriptionSchema = z.object({
     .describe('A short description for the document under 200 characters'),
 });
 
-async function getTitleDescription(
+export async function getTitleDescription(
   filePath: string,
   frontmatter: GrayMatterFile<string>,
   languageModelConfig: LanguageModelConfig,
@@ -53,7 +58,7 @@ async function getTitleDescription(
   return result;
 }
 
-async function annotateFile(
+export async function annotateFile(
   filePath: string,
   frontmatter: GrayMatterFile<string>,
   languageModelConfig: LanguageModelConfig,
@@ -96,6 +101,7 @@ async function annotateCollectionFiles(
     // Get all markdown files in the collection
     const markdownFiles = await globby('**/*.md', {
       cwd: collection.outputDirectory,
+      fs: fsAdapter,
     });
 
     spinner.text = `Found ${markdownFiles.length.toString()} markdown files in ${collection.name}`;
@@ -136,19 +142,20 @@ async function annotateCollectionFiles(
 /**
  * Annotates markdown files with a title/description if it is missing from the metadata
  */
-export async function annotateCommand(config: Config): Promise<void> {
-  const service = getOutlineService(config.outline.apiUrl);
-  const outlineCollections = await service.getCollections();
-  const collections = getCollectionConfigs(
-    outlineCollections,
-    [],
-    config,
-    config.outputDir,
-  );
-
+export async function annotateCommand(
+  config: Config,
+  options: AnnotateOptions,
+): Promise<void> {
   if (!config.languageModel) {
     throw new Error('Language model configuration is required');
   }
+
+  const service = getOutlineService(config.outline.apiUrl);
+  const outlineCollections = await service.getCollections();
+  const collections = getCollectionConfigs(outlineCollections, config, {
+    collectionUrlIdsFilter: options.collections,
+    outputDir: options.dir,
+  });
 
   for (const collection of collections) {
     await annotateCollectionFiles(collection, config.languageModel);

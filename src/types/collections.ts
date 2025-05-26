@@ -14,5 +14,5 @@ export interface DocumentCollection {
   /**
    * The description of the collection
    */
-  description: string;
+  description: string | null;
 }

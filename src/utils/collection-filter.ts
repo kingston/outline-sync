@@ -3,7 +3,7 @@ import path from 'node:path';
 import type { DocumentCollection } from '@src/types/collections.js';
 import type { CollectionMcpConfig, Config } from '@src/types/config.js';
 
-import { createSafeFilename } from './file-manager.js';
+import { createSafeFilename } from './file-names.js';
 
 export interface DocumentCollectionWithConfig extends DocumentCollection {
   outputDirectory: string;
@@ -15,10 +15,20 @@ export interface DocumentCollectionWithConfig extends DocumentCollection {
  */
 export function getCollectionConfigs(
   allCollections: DocumentCollection[],
-  collectionIds: string[],
   config: Config,
-  outputDir: string,
+  overrides: {
+    /**
+     * Filter collections by URL IDs
+     */
+    collectionUrlIdsFilter?: string[];
+    /**
+     * Override the output directory for the collections
+     */
+    outputDir?: string;
+  } = {},
 ): DocumentCollectionWithConfig[] {
+  const { collectionUrlIdsFilter = [], outputDir = config.outputDir } =
+    overrides;
   // check if all config collections are present in the allCollections array
   const missingConfigCollections = config.collections.filter(
     (c) => !allCollections.some((ac) => ac.urlId === c.urlId),
@@ -37,7 +47,8 @@ export function getCollectionConfigs(
     )
     .filter(
       (collection) =>
-        collectionIds.length === 0 || collectionIds.includes(collection.urlId),
+        collectionUrlIdsFilter.length === 0 ||
+        collectionUrlIdsFilter.includes(collection.urlId),
     )
     .map((collection) => {
       const collectionConfig = config.collections.find(

@@ -16,27 +16,29 @@ export async function uploadFile(
   // Read the file as a buffer
   const fileBuffer = await fs.promises.readFile(filePath);
   const fileName = filePath.split('/').pop() ?? 'file';
-  
+
   // Create FormData and append fields
   const formData = new FormData();
-  
+
   // Add all form fields first (order matters for S3)
   for (const [key, value] of Object.entries(formFields)) {
     formData.append(key, value);
   }
-  
+
   // Add the file last (required by S3)
   const blob = new Blob([fileBuffer]);
   formData.append('file', blob, fileName);
-  
+
   const response = await fetch(uploadUrl, {
     method: 'POST',
     body: formData,
   });
-  
+
   if (!response.ok) {
     const responseText = await response.text();
-    throw new Error(`Failed to upload file: ${response.status.toString()} ${response.statusText} - ${responseText}`);
+    throw new Error(
+      `Failed to upload file: ${response.status.toString()} ${response.statusText} - ${responseText}`,
+    );
   }
 }
 

@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import { stat } from 'node:fs/promises';
 import path from 'node:path';
 import ora from 'ora';
+import { z } from 'zod';
 
 import type { ImageUploadInfo } from '@src/services/attachments.js';
 import type { DocumentCollection } from '@src/types/collections.js';
@@ -19,7 +20,9 @@ import type { DocumentCollectionWithConfig } from '../utils/collection-filter.js
 
 import { getOutlineService } from '../services/outline.js';
 import { getCollectionConfigs } from '../utils/collection-filter.js';
-import { directoryExists, writeDocumentFile } from '../utils/file-manager.js';
+import { writeDocumentFile } from '../utils/file-manager.js';
+
+const IS_TEST = process.env.NODE_ENV === 'test';
 
 /**
  * Upload local markdown files to Outline
@@ -36,23 +39,14 @@ export async function uploadCommand(
   try {
     const outlineService = getOutlineService(config.outline.apiUrl);
 
-    const sourceDir = options.source ?? config.outputDir;
-
-    // Check if source directory exists
-    if (!(await directoryExists(sourceDir))) {
-      throw new Error(`Source directory does not exist: ${sourceDir}`);
-    }
-
     spinner.text = 'Scanning for markdown files...';
 
     spinner.text = 'Fetching collections from Outline...';
     const allCollections = await outlineService.getCollections();
-    const collectionsToProcess = getCollectionConfigs(
-      allCollections,
-      options.collection ? [options.collection] : [],
-      config,
-      sourceDir,
-    );
+    const collectionsToProcess = getCollectionConfigs(allCollections, config, {
+      collectionUrlIdsFilter: options.collections,
+      outputDir: options.dir,
+    });
 
     if (collectionsToProcess.length === 0) {
       spinner.fail('No collections found to process');
@@ -73,7 +67,9 @@ export async function uploadCommand(
       );
     }
 
-    console.info(chalk.green('\n✓ Upload completed successfully!'));
+    if (!IS_TEST) {
+      console.info(chalk.green('\n✓ Upload completed successfully!'));
+    }
   } catch (error) {
     spinner.fail('Upload failed');
     throw error;
@@ -98,6 +94,7 @@ async function processCollectionFiles(
   let updatedCount = 0;
   let skippedCount = 0;
   let errorCount = 0;
+  let lastError: unknown;
 
   const filesToUpload = await readCollectionFiles(collection);
 
@@ -109,7 +106,10 @@ async function processCollectionFiles(
     try {
       // Resolve parent document ID if it's a file path
       let resolvedParentId = file.parentDocumentId;
-      if (resolvedParentId && !resolvedParentId.includes('-')) {
+      if (
+        resolvedParentId &&
+        !z.string().uuid().safeParse(resolvedParentId).success
+      ) {
         // This looks like a file path, not a document ID
         const parentDocId = filePathToDocumentId.get(resolvedParentId);
         if (parentDocId) {
@@ -165,6 +165,10 @@ async function processCollectionFiles(
       errorCount++;
       console.info(chalk.red(`\n  ✗ Failed: ${file.filePath}`));
       console.info(chalk.red(`     ${String(error)}`));
+      if (IS_TEST) {
+        throw error;
+      }
+      lastError = error;
     }
   }
 
@@ -172,7 +176,7 @@ async function processCollectionFiles(
     spinner.fail(
       `  ${collection.name}: Created ${String(uploadedCount)}, Updated ${String(updatedCount)}, Skipped ${String(skippedCount)}, Errors ${String(errorCount)}`,
     );
-    return;
+    throw lastError;
   }
 
   spinner.succeed(
@@ -210,15 +214,15 @@ async function uploadFile(
   options: UploadOptions,
   includeImages: boolean,
 ): Promise<UploadResult> {
-  if (!file.metadata.outlineId && options.updateOnly) {
-    return { status: 'skipped' };
-  }
-
   // Get the document from Outline if it exists
   const document =
     file.metadata.outlineId === undefined
       ? undefined
       : await outlineService.getDocument(file.metadata.outlineId);
+
+  if (!document && options.updateOnly) {
+    return { status: 'skipped' };
+  }
 
   // If document has metadata, use it for upload
   return document
@@ -344,7 +348,9 @@ async function updateExistingDocument(
     );
 
     // Wait one second between each upload to avoid rate limiting
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    if (!IS_TEST) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
 
     return { status: 'updated', document: updatedDocument };
   }
@@ -392,10 +398,12 @@ async function createNewDocument(
   });
 
   // Wait one second between each upload to avoid rate limiting
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  if (!IS_TEST) {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
 
   if (
-    parsedImages.some((image) => !image.isExistingAttachment) ||
+    parsedImages.every((image) => image.isExistingAttachment) ||
     !includeImages
   ) {
     return { status: 'created', document };

@@ -1,24 +1,8 @@
 import matter from 'gray-matter';
-import { promises as fs } from 'node:fs';
+import fs from 'node:fs/promises';
 import path from 'node:path';
-import slugify from 'slugify';
 
 import { type DocumentFrontmatter } from '../types/documents.js';
-
-/**
- * Create a filesystem-safe filename from a document title
- */
-export function createSafeFilename(title: string): string {
-  return slugify.default(title, {
-    lower: true,
-    strict: true,
-    replacement: '-',
-  });
-}
-
-export function createSafeMarkdownFilename(title: string): string {
-  return `${createSafeFilename(title)}.md`;
-}
 
 /**
  * Write a document to the filesystem with frontmatter

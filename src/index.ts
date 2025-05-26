@@ -4,7 +4,12 @@ import chalk from 'chalk';
 import { Command } from 'commander';
 import dotenv from 'dotenv';
 
-import type { DownloadOptions, UploadOptions } from './types/config.js';
+import type {
+  AnnotateOptions,
+  DownloadOptions,
+  McpOptions,
+  UploadOptions,
+} from './types/config.js';
 
 import { annotateCommand } from './commands/annotate.js';
 import { downloadCommand } from './commands/download.js';
@@ -39,20 +44,20 @@ program
 program
   .command('download')
   .description('Download collections from Outline to local directory')
-  .argument('[collections...]', 'Collection URL IDs or IDs to download')
   .option('-d, --dir <directory>', 'Output directory')
-  .action(async (collections: string[], options: DownloadOptions) => {
+  .option('-c, --collections <ids...>', 'Collection URL IDs to download')
+  .action(async (options: DownloadOptions) => {
     const config = await loadConfig(program.opts<GlobalOptions>().config);
 
-    await downloadCommand(config, options, collections);
+    await downloadCommand(config, options);
   });
 
 // Upload command
 program
   .command('upload')
   .description('Upload local markdown files to Outline')
-  .option('-s, --source <directory>', 'Source directory')
-  .option('-c, --collection <name>', 'Target collection name/ID')
+  .option('-d, --dir <directory>', 'Source directory')
+  .option('-c, --collections <ids...>', 'Collection URL IDs to upload')
   .option('--create-missing', 'Create collections/documents if missing')
   .option('--update-only', 'Only update existing documents')
   .action(async (options: UploadOptions) => {
@@ -73,20 +78,24 @@ program
 program
   .command('mcp')
   .description('Start MCP server for AI assistant integration')
-  .action(async () => {
+  .option('-d, --dir <directory>', 'Output directory')
+  .option('-c, --collections <ids...>', 'Collection URL IDs to expose via MCP')
+  .action(async (options: McpOptions) => {
     const config = await loadConfig(program.opts<GlobalOptions>().config);
 
-    await mcpCommand(config);
+    await mcpCommand(config, options);
   });
 
 // Annotate command
 program
   .command('annotate')
   .description('Annotate markdown files with title and description')
-  .action(async () => {
+  .option('-d, --dir <directory>', 'Output directory')
+  .option('-c, --collections <ids...>', 'Collection URL IDs to annotate')
+  .action(async (options: AnnotateOptions) => {
     const config = await loadConfig(program.opts<GlobalOptions>().config);
 
-    await annotateCommand(config);
+    await annotateCommand(config, options);
   });
 
 // Handle unknown commands
