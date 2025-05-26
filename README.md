@@ -247,18 +247,20 @@ npx outline-sync annotate
 The annotate command supports multiple language model providers. You'll need to:
 
 1. **Install the provider's package** (optional peer dependencies):
+
    ```bash
    # For Anthropic Claude
    npm install @langchain/anthropic
-   
+
    # For Google Gemini
    npm install @langchain/google-genai
-   
+
    # For OpenAI GPT
    npm install @langchain/openai
    ```
 
 2. **Configure the provider** in your config file:
+
    ```javascript
    export default {
      // ... other config
@@ -272,6 +274,7 @@ The annotate command supports multiple language model providers. You'll need to:
 3. **Set the appropriate API key** as an environment variable (see Environment Variables section)
 
 The command will:
+
 - Scan all markdown files in your configured collections
 - Skip files that already have both title and description
 - Use AI to generate appropriate titles and descriptions based on content

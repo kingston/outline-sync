@@ -4,7 +4,12 @@ import chalk from 'chalk';
 import { Command } from 'commander';
 import dotenv from 'dotenv';
 
-import type { AnnotateOptions, DownloadOptions, McpOptions, UploadOptions } from './types/config.js';
+import type {
+  AnnotateOptions,
+  DownloadOptions,
+  McpOptions,
+  UploadOptions,
+} from './types/config.js';
 
 import { annotateCommand } from './commands/annotate.js';
 import { downloadCommand } from './commands/download.js';
