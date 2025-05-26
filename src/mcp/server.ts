@@ -6,7 +6,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import express from 'express';
 
-import type { Config } from '@src/types/config.js';
+import type { Config, McpOptions } from '@src/types/config.js';
 import type { DocumentCollectionWithConfig } from '@src/utils/collection-filter.js';
 
 import { setupMcpDocumentResource } from './resources/documents.js';
@@ -32,7 +32,8 @@ export class MCPServer {
   constructor(
     private config: Config,
     collections: DocumentCollectionWithConfig[],
-    private version: string,
+    version: string,
+    private options: McpOptions = {},
   ) {
     this.server = new McpServer({
       name: 'outline-sync',
@@ -49,7 +50,8 @@ export class MCPServer {
       throw new Error('No collections configured for MCP');
     }
 
-    const transport = this.config.mcp.transport as string;
+    const transport =
+      this.options.transport ?? (this.config.mcp.transport as string);
 
     if (transport === 'stdio') {
       await this.startStdioTransport();
@@ -63,9 +65,6 @@ export class MCPServer {
   private async startStdioTransport(): Promise<void> {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-
-    console.info('MCP server started for outline-sync (stdio transport)...');
-    this.logExposedCollections();
   }
 
   public async startInMemoryTransport(): Promise<InMemoryTransport> {
@@ -111,7 +110,7 @@ export class MCPServer {
       this.server.close().catch(console.error);
     });
 
-    const { port } = this.config.mcp;
+    const port = this.options.port ?? this.config.mcp.port;
     app.listen(port, () => {
       console.info(
         `MCP server started for outline-sync (SSE transport on "http://localhost:${port.toString()}/mcp")...`,

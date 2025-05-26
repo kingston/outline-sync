@@ -80,6 +80,10 @@ export interface McpOptions {
   dir?: string;
   /** Filter collections by URL IDs */
   collections?: string[];
+  /** MCP server transport */
+  transport?: 'stdio' | 'streamable-http';
+  /** MCP server port */
+  port?: number;
 }
 
 /**
