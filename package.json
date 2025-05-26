@@ -16,7 +16,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "generate:openapi": "openapi-typescript https://raw.githubusercontent.com/outline/openapi/refs/heads/main/spec3.yml -o ./src/services/generated/outline-openapi.d.ts --properties-required-by-default",
     "lint": "eslint .",
     "prettier:check": "prettier --check .",
@@ -57,6 +57,7 @@
     "memfs": "^4.17.2",
     "openapi-typescript": "^7.8.0",
     "prettier": "^3.5.3",
+    "tsc-alias": "^1.8.16",
     "tsx": "^4.19.4",
     "typescript": "5.7.3",
     "vite-tsconfig-paths": "5.1.4",
@@ -92,7 +93,8 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "faiss-node"
+      "faiss-node",
+      "protobufjs"
     ],
     "ignoredBuiltDependencies": [
       "esbuild",
