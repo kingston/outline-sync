@@ -3,12 +3,15 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import { type DocumentFrontmatter } from '../types/documents.js';
+import { handleFileNotFoundError } from './handle-not-found-error.js';
 
 async function writeIfChanged(
   filePath: string,
   content: string,
 ): Promise<void> {
-  const existingContent = await fs.readFile(filePath, 'utf8');
+  const existingContent = await fs
+    .readFile(filePath, 'utf8')
+    .catch(handleFileNotFoundError);
   if (existingContent === content) {
     return;
   }

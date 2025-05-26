@@ -58,6 +58,7 @@ This is the content.`;
         relativePath: 'doc.md',
         collectionId: 'test-collection',
         parentDocumentId: undefined,
+        lastModifiedAt: expect.any(Date) as Date,
       });
     });
 

@@ -92,12 +92,12 @@
     "provenance": true
   },
   "pnpm": {
+    "onlyBuiltDependencies": [
+      "faiss-node"
+    ],
     "ignoredBuiltDependencies": [
       "esbuild",
       "unrs-resolver"
-    ],
-    "onlyBuiltDependencies": [
-      "faiss-node"
     ]
   }
 }
