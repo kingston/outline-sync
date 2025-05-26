@@ -29,37 +29,59 @@ This document outlines the coding standards and conventions used in the outline-
 ```
 src/
 ├── commands/           # CLI command implementations
+│   ├── annotate.ts     # Annotates markdown files with AI-generated descriptions
 │   ├── download.ts     # Downloads collections from Outline to local files
-│   ├── upload.ts       # Uploads local changes back to Outline
-│   └── mcp.ts          # Starts MCP server for AI integration
+│   ├── mcp.ts          # Starts MCP server for AI integration
+│   └── upload.ts       # Uploads local changes back to Outline
 │
 ├── services/           # Core business logic
-│   ├── outline.ts      # Main Outline API client using OpenAPI types
-│   ├── documents.ts    # Document fetching with hierarchy building
 │   ├── attachments.ts  # Image/attachment handling and markdown processing
+│   ├── documents.ts    # Document fetching with hierarchy building
+│   ├── langchain.ts    # LangChain integration for AI features
+│   ├── outline.ts      # Main Outline API client using OpenAPI types
 │   ├── output-files.ts # File system operations for collections
 │   └── generated/      # OpenAPI TypeScript definitions
+│       └── outline-openapi.d.ts
 │
 ├── mcp/               # Model Context Protocol server
 │   ├── server.ts      # MCP server implementation (stdio/SSE transports)
-│   ├── resources/     # MCP resource handlers for document access
-│   └── types.ts       # MCP-specific type definitions
+│   ├── resources/     # MCP resource handlers
+│   │   ├── documents.ts # Document resource access
+│   │   └── index.ts   # Resource exports
+│   ├── tools/         # MCP tool implementations
+│   │   ├── index.ts   # Tool exports
+│   │   └── list-collections.ts # List available collections
+│   ├── types.ts       # MCP-specific type definitions
+│   └── utils/         # MCP test utilities
+│       └── mcp-runner.test-helper.ts # MCP test runner
 │
 ├── types/             # TypeScript type definitions
+│   ├── collections.ts # Collection types
 │   ├── config.ts      # Configuration schemas using Zod validation
 │   ├── documents.ts   # Document-related types
-│   ├── collections.ts # Collection types
 │   └── index.ts       # Type re-exports
 │
 ├── utils/             # Utility functions
-│   ├── config.ts      # Configuration loading and validation
-│   ├── file-manager.ts # File system operations (safe filenames, frontmatter)
-│   ├── file-transfer.ts # HTTP file upload/download utilities
 │   ├── collection-filter.ts # Collection filtering logic
+│   ├── config.ts      # Configuration loading and validation
+│   ├── file-manager.ts # File system operations (frontmatter handling)
+│   ├── file-names.ts  # Safe filename generation
+│   ├── file-transfer.ts # HTTP file upload/download utilities
+│   ├── find-nearest-package-json.ts # Package.json location utility
+│   ├── handle-not-found-error.ts # Error handling utilities
 │   └── version.ts     # Version management
+│
+├── tests/             # Test utilities and helpers
+│   ├── config.test-helper.ts # Configuration mock helpers
+│   └── factories.test-helper.ts # Test data factories
 │
 ├── constants/         # Application constants
 │   └── concurrency.ts # Concurrency limits for API requests
+│
+├── __mocks__/         # Manual mocks for testing
+│   ├── fs.cts         # File system mocks
+│   └── fs/
+│       └── promises.cts # Async file system mocks
 │
 └── index.ts           # Main entry point with CLI setup
 ```
@@ -249,9 +271,100 @@ pnpm build
 
 # Testing
 
-- To mock the file system, simply add:
+## Test Organization
 
-```
-vi.mock('node:fs/promises');
+- Unit tests are colocated with source files using `.unit.test.ts` suffix
+- Integration tests use `.int.test.ts` suffix
+- Test helpers are located in `src/tests/` directory
+- Manual mocks are in `src/__mocks__/` directory
+
+## Common Test Patterns
+
+### Mocking the File System
+
+For file system operations, use memfs:
+
+```typescript
+import { vol } from 'memfs';
+
 vi.mock('node:fs');
+vi.mock('node:fs/promises');
+
+beforeEach(() => {
+  vol.reset();
+});
+
+afterEach(() => {
+  vol.reset();
+});
 ```
+
+### Test Data Factories
+
+Use factory functions from `@src/tests/factories.test-helper.js`:
+
+```typescript
+import {
+  createMockDocument,
+  createMockDocumentCollection,
+  createMockParsedDocument,
+} from '@src/tests/factories.test-helper.js';
+```
+
+### Mocking External Dependencies
+
+Always mock external dependencies like ora, chalk, etc.:
+
+```typescript
+vi.mock('ora');
+vi.mock('chalk', () => ({
+  default: {
+    green: vi.fn((text: string) => text),
+    red: vi.fn((text: string) => text),
+  },
+}));
+```
+
+### Type-Safe Mocking
+
+Use proper TypeScript types for mocks:
+
+```typescript
+import type { Mocked } from 'vitest';
+
+let mockOutlineService: Mocked<{
+  getCollections: typeof OutlineService.prototype.getCollections;
+  // ... other methods
+}>;
+```
+
+### MCP Testing
+
+For MCP tools, use the test runner helper:
+
+```typescript
+import { setupMcpTest } from '../utils/mcp-runner.test-helper.js';
+
+const mcpContext = await setupMcpTest({
+  config: mockConfig,
+  collections: mockCollections,
+});
+
+const result = await mcpContext.callMcpTool({
+  name: 'list-collections',
+  arguments: {},
+});
+```
+
+## Testing Best Practices
+
+1. **Clear Test Names**: Use descriptive test names that explain what is being tested
+2. **Arrange-Act-Assert**: Structure tests with clear setup, execution, and verification phases
+3. **Mock External Services**: Always mock external API calls and file system operations
+4. **Use Test Helpers**: Extract common setup code into test helpers
+5. **Test Error Cases**: Include tests for error conditions and edge cases
+6. **Avoid Test Interdependence**: Each test should be independent and not rely on others
+7. **Clean Up After Tests**: Always reset mocks and clean up resources in afterEach
+8. **Use Type-Safe Mocks**: Leverage TypeScript for type-safe mocking
+9. **Test Public APIs**: Focus on testing public methods and behaviors, not implementation details
+10. **Keep Tests Simple**: Each test should verify one specific behavior
