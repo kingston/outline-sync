@@ -5,7 +5,7 @@ import type { DocumentCollectionWithConfig } from '@src/utils/collection-filter.
 export interface McpCollectionInfo {
   name: string;
   key: string;
-  outputDirectory: string;
+  description: string | null;
   readOnly: boolean;
 }
 
@@ -23,7 +23,7 @@ export function setupListCollectionsTool(
           const info: McpCollectionInfo = {
             name: collection.name,
             key: collection.urlId,
-            outputDirectory: collection.outputDirectory,
+            description: collection.description,
             readOnly: collection.mcp.readOnly,
           };
 

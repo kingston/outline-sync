@@ -26,12 +26,12 @@ export class MCPServer {
       version,
     });
     this.collections = collections.filter((c) => c.mcp.enabled);
+
+    // Register handlers
+    this.registerHandlers();
   }
 
   async start(): Promise<void> {
-    // Register handlers
-    this.registerHandlers();
-
     if (this.collections.length === 0) {
       throw new Error('No collections configured for MCP');
     }
@@ -56,9 +56,6 @@ export class MCPServer {
   }
 
   public async startInMemoryTransport(): Promise<InMemoryTransport> {
-    // Register handlers
-    this.registerHandlers();
-
     const [clientTransport, serverTransport] =
       InMemoryTransport.createLinkedPair();
     await this.server.connect(serverTransport);
@@ -73,12 +70,7 @@ export class MCPServer {
       sessionIdGenerator: undefined,
     });
 
-    const server = new McpServer({
-      name: 'outline-sync',
-      version: this.version,
-    });
-    setupMcpDocumentResource(server, this.collections);
-    await server.connect(transport);
+    await this.server.connect(transport);
 
     app.post('/mcp', async (req: Request, res: Response) => {
       try {
@@ -100,7 +92,7 @@ export class MCPServer {
 
     app.on('close', () => {
       transport.close().catch(console.error);
-      server.close().catch(console.error);
+      this.server.close().catch(console.error);
     });
 
     const { port } = this.config.mcp;

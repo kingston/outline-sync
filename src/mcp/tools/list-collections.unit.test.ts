@@ -48,13 +48,13 @@ describe('list-collections tool', () => {
         {
           name: 'Engineering Docs',
           key: 'engineering',
-          outputDirectory: '/tmp/engineering',
+          description: 'Engineering documentation',
           readOnly: false,
         },
         {
           name: 'Product Docs',
           key: 'product',
-          outputDirectory: '/tmp/product',
+          description: 'Product documentation',
           readOnly: true,
         },
       ],
