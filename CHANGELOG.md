@@ -1,5 +1,11 @@
 # outline-sync
 
+## 0.2.2
+
+### Patch Changes
+
+- 8939191: Ensure MCP stdio does not emit any additional output and add overrides to mcp command
+
 ## 0.2.1
 
 ### Patch Changes
