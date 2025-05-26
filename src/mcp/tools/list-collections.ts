@@ -2,6 +2,8 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 
 import type { DocumentCollectionWithConfig } from '@src/utils/collection-filter.js';
 
+import { createSafeFilename } from '@src/utils/file-names.js';
+
 export interface McpCollectionInfo {
   name: string;
   key: string;
@@ -22,7 +24,7 @@ export function setupListCollectionsTool(
         collections.map((collection) => {
           const info: McpCollectionInfo = {
             name: collection.name,
-            key: collection.urlId,
+            key: createSafeFilename(collection.name),
             description: collection.description,
             readOnly: collection.mcp.readOnly,
           };

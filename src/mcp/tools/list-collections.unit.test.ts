@@ -47,13 +47,13 @@ describe('list-collections tool', () => {
       collections: [
         {
           name: 'Engineering Docs',
-          key: 'engineering',
+          key: 'engineering-docs',
           description: 'Engineering documentation',
           readOnly: false,
         },
         {
           name: 'Product Docs',
-          key: 'product',
+          key: 'product-docs',
           description: 'Product documentation',
           readOnly: true,
         },

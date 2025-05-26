@@ -85,6 +85,10 @@
   "volta": {
     "node": "22.16.0"
   },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "pnpm": {
     "ignoredBuiltDependencies": [
       "esbuild",
