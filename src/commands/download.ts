@@ -37,7 +37,6 @@ import {
 export async function downloadCommand(
   config: Config,
   options: DownloadOptions,
-  collectionNames: string[] = [],
 ): Promise<void> {
   const spinner = ora({
     hideCursor: false,
@@ -47,18 +46,15 @@ export async function downloadCommand(
   try {
     const outlineService = getOutlineService(config.outline.apiUrl);
 
-    const outputDir = options.dir ?? config.outputDir;
     const includeMetadata = !config.behavior.skipMetadata;
     const { cleanupAfterDownload, includeImages } = config.behavior;
 
     spinner.text = 'Fetching collections...';
     const allCollections = await outlineService.getCollections();
-    const collectionsToDownload = getCollectionConfigs(
-      allCollections,
-      collectionNames,
-      config,
-      outputDir,
-    );
+    const collectionsToDownload = getCollectionConfigs(allCollections, config, {
+      collectionUrlIdsFilter: options.collections,
+      outputDir: options.dir,
+    });
 
     if (collectionsToDownload.length === 0) {
       spinner.fail('No collections found to download');

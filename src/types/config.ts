@@ -54,6 +54,8 @@ export type Config = z.infer<typeof configSchema>;
 export interface DownloadOptions {
   /** Custom output directory (overrides config) */
   dir?: string;
+  /** Filter collections by URL IDs */
+  collections?: string[];
 }
 
 /**
@@ -61,9 +63,29 @@ export interface DownloadOptions {
  */
 export interface UploadOptions {
   /** Source directory to upload from (overrides config) */
-  source?: string;
-  /** Target collection name or ID */
-  collection?: string;
+  dir?: string;
+  /** Filter collections by URL IDs */
+  collections?: string[];
   /** Only update existing documents, don't create new ones */
   updateOnly?: boolean;
+}
+
+/**
+ * Options for the MCP command
+ */
+export interface McpOptions {
+  /** Custom output directory (overrides config) */
+  dir?: string;
+  /** Filter collections by URL IDs */
+  collections?: string[];
+}
+
+/**
+ * Options for the annotate command
+ */
+export interface AnnotateOptions {
+  /** Custom output directory (overrides config) */
+  dir?: string;
+  /** Filter collections by URL IDs */
+  collections?: string[];
 }

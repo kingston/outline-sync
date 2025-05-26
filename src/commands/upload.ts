@@ -19,7 +19,7 @@ import type { DocumentCollectionWithConfig } from '../utils/collection-filter.js
 
 import { getOutlineService } from '../services/outline.js';
 import { getCollectionConfigs } from '../utils/collection-filter.js';
-import { directoryExists, writeDocumentFile } from '../utils/file-manager.js';
+import { writeDocumentFile } from '../utils/file-manager.js';
 
 /**
  * Upload local markdown files to Outline
@@ -36,23 +36,14 @@ export async function uploadCommand(
   try {
     const outlineService = getOutlineService(config.outline.apiUrl);
 
-    const sourceDir = options.source ?? config.outputDir;
-
-    // Check if source directory exists
-    if (!(await directoryExists(sourceDir))) {
-      throw new Error(`Source directory does not exist: ${sourceDir}`);
-    }
-
     spinner.text = 'Scanning for markdown files...';
 
     spinner.text = 'Fetching collections from Outline...';
     const allCollections = await outlineService.getCollections();
-    const collectionsToProcess = getCollectionConfigs(
-      allCollections,
-      options.collection ? [options.collection] : [],
-      config,
-      sourceDir,
-    );
+    const collectionsToProcess = getCollectionConfigs(allCollections, config, {
+      collectionUrlIdsFilter: options.collections,
+      outputDir: options.dir,
+    });
 
     if (collectionsToProcess.length === 0) {
       spinner.fail('No collections found to process');
