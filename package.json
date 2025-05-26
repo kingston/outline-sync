@@ -18,7 +18,6 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "generate:openapi": "openapi-typescript https://raw.githubusercontent.com/outline/openapi/refs/heads/main/spec3.yml -o ./src/services/generated/outline-openapi.d.ts --properties-required-by-default",
-    "preinstall": "npx only-allow pnpm",
     "lint": "eslint .",
     "prettier:check": "prettier --check .",
     "prettier:write": "prettier -w .",

@@ -18,7 +18,7 @@ This document outlines the coding standards and conventions used in the outline-
 ## Project Structure
 
 - **Single Package**: Not a monorepo, but follows similar conventions
-- **Package Manager**: pnpm 10+ (enforced via `only-allow` preinstall hook)
+- **Package Manager**: pnpm 10+
 - **Node Version**: 20+ (specified in engines, Volta pinned to 22.16.0)
 - **Module System**: ESM only (`"type": "module"` in package.json)
 
