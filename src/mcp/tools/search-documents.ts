@@ -60,7 +60,7 @@ export function setupSearchDocumentsTool(
         limit,
       });
 
-      const searchResults = results[0].results.map((result) => ({
+      const searchResults = results.results.map((result) => ({
         title: result.title,
         description: result.description,
         uri: result.uri,

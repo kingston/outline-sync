@@ -11,6 +11,7 @@ import { setupInlineEditTool } from './inline-edit.js';
 import { setupListCollectionsTool } from './list-collections.js';
 import { setupListDocumentsTool } from './list-documents.js';
 import { setupSearchDocumentsTool } from './search-documents.js';
+import { setupSearchRagDocumentsTool } from './search-rag-documents.js';
 
 export function setupMcpTools(
   server: McpServer,
@@ -25,4 +26,5 @@ export function setupMcpTools(
   setupInlineEditTool(server, collections);
   setupCreateDocumentTool(server, collections);
   setupSearchDocumentsTool(server, config, collections);
+  setupSearchRagDocumentsTool(server, config, collections);
 }

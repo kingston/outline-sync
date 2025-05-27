@@ -15,6 +15,7 @@ import type {
 import { annotateCommand } from './commands/annotate.js';
 import { downloadCommand } from './commands/download.js';
 import { mcpCommand } from './commands/mcp.js';
+import { ragSearchCommand } from './commands/rag-search.js';
 import { searchCommand } from './commands/search.js';
 import { uploadCommand } from './commands/upload.js';
 import { loadConfig } from './utils/config.js';
@@ -117,6 +118,23 @@ program
     const config = await loadConfig(program.opts<GlobalOptions>().config);
 
     await searchCommand(config, {
+      ...options,
+      limit: options.limit,
+      query,
+    });
+  });
+
+// RAG Search command
+program
+  .command('rag-search <query>')
+  .description('Search through document chunks using RAG similarity')
+  .option('-d, --dir <directory>', 'Output directory')
+  .option('-c, --collections <ids...>', 'Collection URL IDs to search')
+  .option('--limit <number>', 'Maximum number of results to return', '10')
+  .action(async (query: string, options: SearchOptions) => {
+    const config = await loadConfig(program.opts<GlobalOptions>().config);
+
+    await ragSearchCommand(config, {
       ...options,
       limit: options.limit,
       query,
