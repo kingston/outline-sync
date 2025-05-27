@@ -5,7 +5,8 @@
       "Bash(pnpm lint:*)",
       "Bash(grep:*)",
       "Bash(pnpm test:*)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "Bash(ls:*)"
     ],
     "deny": []
   }

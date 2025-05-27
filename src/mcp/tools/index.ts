@@ -5,8 +5,10 @@ import type { DocumentCollectionWithConfig } from '@src/utils/collection-filter.
 
 import { setupCreateDocumentTool } from './create-document.js';
 import { setupEditDocumentTool } from './edit-document.js';
+import { setupGetDocumentTool } from './get-document.js';
 import { setupInlineEditTool } from './inline-edit.js';
 import { setupListCollectionsTool } from './list-collections.js';
+import { setupListDocumentsTool } from './list-documents.js';
 import { setupSearchDocumentsTool } from './search-documents.js';
 
 export function setupMcpTools(
@@ -14,7 +16,9 @@ export function setupMcpTools(
   config: Config,
   collections: DocumentCollectionWithConfig[],
 ): void {
+  setupGetDocumentTool(server, collections);
   setupListCollectionsTool(server, collections);
+  setupListDocumentsTool(server, collections);
   setupEditDocumentTool(server, collections);
   setupInlineEditTool(server, collections);
   setupCreateDocumentTool(server, collections);
