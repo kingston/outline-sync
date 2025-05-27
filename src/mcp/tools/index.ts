@@ -5,6 +5,7 @@ import type { DocumentCollectionWithConfig } from '@src/utils/collection-filter.
 
 import { setupCreateDocumentTool } from './create-document.js';
 import { setupEditDocumentTool } from './edit-document.js';
+import { setupGetDocumentByIdTool } from './get-document-by-id.js';
 import { setupGetDocumentTool } from './get-document.js';
 import { setupInlineEditTool } from './inline-edit.js';
 import { setupListCollectionsTool } from './list-collections.js';
@@ -17,6 +18,7 @@ export function setupMcpTools(
   collections: DocumentCollectionWithConfig[],
 ): void {
   setupGetDocumentTool(server, collections);
+  setupGetDocumentByIdTool(server, collections);
   setupListCollectionsTool(server, collections);
   setupListDocumentsTool(server, collections);
   setupEditDocumentTool(server, collections);

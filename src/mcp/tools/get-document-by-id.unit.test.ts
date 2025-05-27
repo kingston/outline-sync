@@ -5,12 +5,12 @@ import type { DocumentCollectionWithConfig } from '@src/utils/collection-filter.
 
 import { createMockDocumentCollection } from '@src/tests/factories.test-helper.js';
 
-import { mcpGetDocument } from './get-document.js';
+import { mcpGetDocumentById } from './get-document-by-id.js';
 
 vi.mock('node:fs');
 vi.mock('node:fs/promises');
 
-describe('mcpGetDocument', () => {
+describe('mcpGetDocumentById', () => {
   let mockCollections: DocumentCollectionWithConfig[];
 
   beforeEach(() => {
@@ -30,20 +30,22 @@ describe('mcpGetDocument', () => {
     vol.reset();
   });
 
-  it('should get document details', async () => {
+  it('should get document by ID', async () => {
+    const documentId = '123e4567-e89b-12d3-a456-426614174000';
     vol.fromJSON({
       '/output/test-collection/test-doc.md': `---
 title: Test Document
 description: Test description
+outlineId: ${documentId}
 ---
 # Test Content
 
 This is the content.`,
     });
 
-    const result = await mcpGetDocument(
+    const result = await mcpGetDocumentById(
       {
-        documentUri: 'documents://test-collection/test-doc.md',
+        documentId,
       },
       mockCollections,
     );
@@ -57,18 +59,20 @@ This is the content.`,
   });
 
   it('should get document without description', async () => {
+    const documentId = '123e4567-e89b-12d3-a456-426614174000';
     vol.fromJSON({
       '/output/test-collection/test-doc.md': `---
 title: Test Document
+outlineId: ${documentId}
 ---
 # Test Content
 
 This is the content.`,
     });
 
-    const result = await mcpGetDocument(
+    const result = await mcpGetDocumentById(
       {
-        documentUri: 'documents://test-collection/test-doc.md',
+        documentId,
       },
       mockCollections,
     );
@@ -81,45 +85,38 @@ This is the content.`,
     expect(result.description).toBeUndefined();
   });
 
-  it('should throw error for non-existent collection', async () => {
-    await expect(
-      mcpGetDocument(
-        {
-          documentUri: 'documents://non-existent/test-doc.md',
-        },
-        mockCollections,
-      ),
-    ).rejects.toThrow("Collection with key 'non-existent' not found");
-  });
-
   it('should throw error for non-existent document', async () => {
     await expect(
-      mcpGetDocument(
+      mcpGetDocumentById(
         {
-          documentUri: 'documents://test-collection/non-existent.md',
+          documentId: '123e4567-e89b-12d3-a456-426614174000',
         },
         mockCollections,
       ),
-    ).rejects.toThrow("Document not found at path 'non-existent.md'");
+    ).rejects.toThrow(
+      "Document with ID '123e4567-e89b-12d3-a456-426614174000' not found",
+    );
   });
 
   it('should handle subdirectory paths', async () => {
+    const documentId = '123e4567-e89b-12d3-a456-426614174000';
     vol.fromJSON({
-      '/output/test-collection/subdir/test-doc.md': `---
+      '/output/test-collection/subdir/index.md': `---
 title: Test Document
+outlineId: ${documentId}
 ---
 Content in subdirectory.`,
     });
 
-    const result = await mcpGetDocument(
+    const result = await mcpGetDocumentById(
       {
-        documentUri: 'documents://test-collection/subdir/test-doc.md',
+        documentId,
       },
       mockCollections,
     );
 
     expect(result).toEqual({
-      documentUri: 'documents://test-collection/subdir/test-doc.md',
+      documentUri: 'documents://test-collection/subdir/index.md',
       title: 'Test Document',
       content: 'Content in subdirectory.',
     });
