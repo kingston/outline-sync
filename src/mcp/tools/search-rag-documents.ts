@@ -20,7 +20,9 @@ export function setupSearchRagDocumentsTool(
     'search-rag-documents',
     'Search across document chunks using RAG (Retrieval-Augmented Generation) for finding specific passages',
     {
-      query: z.string().describe('The search query to find similar document chunks'),
+      query: z
+        .string()
+        .describe('The search query to find similar document chunks'),
       limit: z
         .number()
         .describe('Maximum number of chunks to return (default: 10)')
@@ -30,7 +32,9 @@ export function setupSearchRagDocumentsTool(
       const { query, limit = 10 } = args;
 
       if (!config.languageModel) {
-        throw new Error('Language model configuration is required for RAG search');
+        throw new Error(
+          'Language model configuration is required for RAG search',
+        );
       }
 
       if (!query || query.trim().length === 0) {
