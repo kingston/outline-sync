@@ -6,12 +6,12 @@ import type { Config, SearchOptions } from '@src/types/config.js';
 
 import { getOutlineService } from '@src/services/outline.js';
 import {
-  createIndexedVectorStoreFromCollections,
-  searchVectorStores,
-} from '@src/services/vector-store.js';
+  createIndexedRagStoreFromCollections,
+  searchRagStores,
+} from '@src/services/rag-store.js';
 import { getCollectionConfigs } from '@src/utils/collection-filter.js';
 
-export async function searchCommand(
+export async function ragSearchCommand(
   config: Config,
   options: SearchOptions,
 ): Promise<void> {
@@ -32,35 +32,39 @@ export async function searchCommand(
 
   const spinner = ora({
     hideCursor: false,
-    text: 'Creating search index...',
+    text: 'Creating RAG search index...',
   }).start();
-  let vectorStores: FaissStore[];
+  let ragStores: FaissStore[];
   try {
-    vectorStores = await createIndexedVectorStoreFromCollections(
+    ragStores = await createIndexedRagStoreFromCollections(
       config.languageModel,
       collections,
     );
-    spinner.succeed('Search index created!');
+    spinner.succeed('RAG search index created!');
   } catch (error) {
     spinner.fail();
     throw error;
   }
 
-  const results = await searchVectorStores(vectorStores, options.query, {
-    includeDocumentContents: options.includeContents,
+  const results = await searchRagStores(ragStores, options.query, {
     limit: options.limit ? Number.parseInt(options.limit, 10) : undefined,
   });
 
   // Print results
-  for (const result of results.results) {
-    console.info(`\nTitle: ${result.title}`);
-    console.info(`Description: ${result.description}`);
-    console.info(`Score: ${result.score.toFixed(2)}`);
-    console.info(`URI: ${result.uri}`);
-    if (result.content) {
-      console.info('\nContent:');
-      console.info(result.content);
+  console.info(
+    `\nFound ${results.results.length.toString()} relevant passages:\n`,
+  );
+
+  for (const [index, result] of results.results.entries()) {
+    console.info(`${(index + 1).toString()}. Document: ${result.documentUri}`);
+    console.info(`   Score: ${result.score.toFixed(3)}`);
+    if (result.loc) {
+      console.info(
+        `   Location: line ${String(result.loc.lines?.from)} - ${String(result.loc.lines?.to)}`,
+      );
     }
-    console.info('---');
+    console.info(`\n   Content:`);
+    console.info(`   ${result.content.trim()}`);
+    console.info('   ---\n');
   }
 }

@@ -9,6 +9,7 @@ import {
   type ParsedDocument,
 } from '@src/types/documents.js';
 import { fileExists } from '@src/utils/file-manager.js';
+import { handleFileNotFoundError } from '@src/utils/handle-not-found-error.js';
 
 /**
  * Read and parse a document file with frontmatter
@@ -53,7 +54,12 @@ async function readCollectionFilesForDirectory(
   collection: DocumentCollectionWithConfig,
   parentDocumentId?: string,
 ): Promise<ParsedDocument[]> {
-  const entries = await fs.readdir(dirPath, { withFileTypes: true });
+  const entries = await fs
+    .readdir(dirPath, { withFileTypes: true })
+    .catch(handleFileNotFoundError);
+  if (!entries) {
+    return [];
+  }
   const parsedDocuments: Omit<ParsedDocument, 'relativeIndex'>[] = [];
   const childrenParsedDocuments: ParsedDocument[] = [];
 

@@ -1,6 +1,7 @@
 import type { Document } from '@langchain/core/documents';
 
 import { FaissStore } from '@langchain/community/vectorstores/faiss';
+import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 import path from 'node:path';
 
 import type { LanguageModelConfig } from '@src/types/config.js';
@@ -13,90 +14,99 @@ import { getLanguageEmbeddingsModel } from './langchain.js';
 import { readCollectionFiles } from './output-files.js';
 
 interface IndexedDocumentMetadata {
-  title: string;
-  outlineId?: string | undefined;
   lastModifiedAt: string;
-  uri: string;
-  description?: string;
+  documentRelativePath: string;
+  documentUri: string;
+  loc?: { lines?: { from: number; to: number } };
 }
 
-interface IndexVectorStoreForCollectionResult {
+interface IndexRagStoreForCollectionResult {
   documentsAdded: number;
   documentsDeleted: number;
 }
+
+const CHUNK_SIZE = 2000;
+const CHUNK_OVERLAP = 80;
 
 function getCollectionIndexDirectory(
   config: LanguageModelConfig,
   collection: DocumentCollectionWithConfig,
 ): string {
-  return path.join(config.searchIndexDirectory, 'doc-store', collection.urlId);
+  return path.join(config.searchIndexDirectory, 'rag-store', collection.urlId);
 }
 
-export async function indexVectorStoreForCollection(
+export async function indexRagStoreForCollection(
   vectorStore: FaissStore,
   config: LanguageModelConfig,
   collection: DocumentCollectionWithConfig,
-): Promise<IndexVectorStoreForCollectionResult> {
+): Promise<IndexRagStoreForCollectionResult> {
   const searchIndexDirectory = getCollectionIndexDirectory(config, collection);
 
   const existingDocs = vectorStore.getDocstore()._docs;
   const collectionFiles = await readCollectionFiles(collection);
 
-  const documentIdsToDelete: string[] = [];
+  const existingDocumentRelativePaths = new Set<string>();
+  const chunkIdsToDelete: string[] = [];
 
   // Delete documents that have been removed or updated
   for (const [id, document] of existingDocs.entries()) {
+    const { documentRelativePath } =
+      document.metadata as IndexedDocumentMetadata;
     const collectionFile = collectionFiles.find(
-      (file) => file.relativePath === id,
+      (file) => file.relativePath === documentRelativePath,
     );
 
     if (!collectionFile) {
-      documentIdsToDelete.push(id);
+      chunkIdsToDelete.push(id);
     } else if (
-      document.metadata.lastModifiedAt !==
+      document.metadata.lastModifiedAt ===
       collectionFile.lastModifiedAt.toISOString()
     ) {
-      documentIdsToDelete.push(id);
+      existingDocumentRelativePaths.add(documentRelativePath);
+    } else {
+      chunkIdsToDelete.push(id);
     }
   }
 
-  if (documentIdsToDelete.length > 0) {
-    await vectorStore.delete({ ids: documentIdsToDelete });
+  if (chunkIdsToDelete.length > 0) {
+    await vectorStore.delete({ ids: chunkIdsToDelete });
   }
 
   // Add new documents
   const documentsToAdd: Document<IndexedDocumentMetadata>[] = [];
-  const documentIdsToAdd: string[] = [];
   for (const collectionFile of collectionFiles) {
-    if (
-      existingDocs.has(collectionFile.relativePath) &&
-      !documentIdsToDelete.includes(collectionFile.relativePath)
-    ) {
+    if (existingDocumentRelativePaths.has(collectionFile.relativePath)) {
       continue;
     }
-
-    documentIdsToAdd.push(collectionFile.relativePath);
+    if (collectionFile.content.trim().length === 0) {
+      continue;
+    }
     documentsToAdd.push({
       pageContent: collectionFile.content,
       metadata: {
-        title: collectionFile.metadata.title,
-        outlineId: collectionFile.metadata.outlineId,
         lastModifiedAt: collectionFile.lastModifiedAt.toISOString(),
-        uri: `documents://${createSafeFilename(collection.name)}/${collectionFile.relativePath}`,
+        documentRelativePath: collectionFile.relativePath,
+        documentUri: `documents://${createSafeFilename(collection.name)}/${collectionFile.relativePath}`,
       },
     });
   }
+  const mdSplitter = RecursiveCharacterTextSplitter.fromLanguage('markdown', {
+    chunkSize: CHUNK_SIZE,
+    chunkOverlap: CHUNK_OVERLAP,
+  });
 
-  await vectorStore.addDocuments(documentsToAdd, { ids: documentIdsToAdd });
+  const chunks = await mdSplitter.splitDocuments(documentsToAdd);
+
+  await vectorStore.addDocuments(chunks);
 
   await vectorStore.save(searchIndexDirectory);
   return {
     documentsAdded: documentsToAdd.length,
-    documentsDeleted: documentIdsToDelete.length,
+    documentsDeleted: chunkIdsToDelete.length,
   };
 }
 
-export async function createVectorStore(
+export async function createRagStore(
   config: LanguageModelConfig,
   collection: DocumentCollectionWithConfig,
 ): Promise<FaissStore> {
@@ -110,14 +120,14 @@ export async function createVectorStore(
   return store;
 }
 
-export async function createIndexedVectorStoreFromCollections(
+export async function createIndexedRagStoreFromCollections(
   config: LanguageModelConfig,
   collections: DocumentCollectionWithConfig[],
 ): Promise<FaissStore[]> {
   const vectorStores: FaissStore[] = [];
   for (const collection of collections) {
-    const vectorStore = await createVectorStore(config, collection);
-    const result = await indexVectorStoreForCollection(
+    const vectorStore = await createRagStore(config, collection);
+    const result = await indexRagStoreForCollection(
       vectorStore,
       config,
       collection,
@@ -133,27 +143,26 @@ export async function createIndexedVectorStoreFromCollections(
   return vectorStores;
 }
 
-interface SearchVectorStoreOptions {
+interface SearchRagStoreOptions {
   includeDocumentContents?: boolean;
   limit?: number;
 }
 
-interface SearchVectorStoreResult {
+interface SearchRagStoreResult {
   results: {
-    uri: string;
-    title: string;
-    description: string;
-    content?: string;
+    documentUri: string;
+    content: string;
     score: number;
+    loc?: { lines?: { from: number; to: number } };
   }[];
 }
 
-export async function searchVectorStore(
+export async function searchRagStore(
   vectorStore: FaissStore,
   query: string,
-  options: SearchVectorStoreOptions = {},
-): Promise<SearchVectorStoreResult> {
-  const { includeDocumentContents = false, limit = 5 } = options;
+  options: SearchRagStoreOptions = {},
+): Promise<SearchRagStoreResult> {
+  const { limit = 10 } = options;
 
   const results = (await vectorStore.similaritySearchWithScore(
     query,
@@ -162,23 +171,22 @@ export async function searchVectorStore(
 
   return {
     results: results.map(([result, score]) => ({
-      uri: result.metadata.uri,
-      title: result.metadata.title,
-      description: result.metadata.description ?? '',
-      content: includeDocumentContents ? result.pageContent : undefined,
+      documentUri: result.metadata.documentUri,
+      content: result.pageContent,
       score,
+      loc: result.metadata.loc,
     })),
   };
 }
 
-export async function searchVectorStores(
+export async function searchRagStores(
   vectorStores: FaissStore[],
   query: string,
-  options: SearchVectorStoreOptions = {},
-): Promise<SearchVectorStoreResult> {
+  options: SearchRagStoreOptions = {},
+): Promise<SearchRagStoreResult> {
   const results = await Promise.all(
     vectorStores.map((vectorStore) =>
-      searchVectorStore(vectorStore, query, options),
+      searchRagStore(vectorStore, query, options),
     ),
   );
 
@@ -188,6 +196,6 @@ export async function searchVectorStores(
 
   // Return top results within limit
   return {
-    results: allResults.slice(0, options.limit ?? 5),
+    results: allResults.slice(0, options.limit ?? 10),
   };
 }

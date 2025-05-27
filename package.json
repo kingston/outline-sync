@@ -30,6 +30,7 @@
   "dependencies": {
     "@langchain/community": "^0.3.44",
     "@langchain/core": "^0.3.57",
+    "@langchain/textsplitters": "^0.1.0",
     "@modelcontextprotocol/sdk": "^1.12.0",
     "chalk": "^5.4.1",
     "commander": "^14.0.0",
