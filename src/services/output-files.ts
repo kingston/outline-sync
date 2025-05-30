@@ -108,10 +108,18 @@ async function readCollectionFilesForDirectory(
 
   return [
     ...parsedDocuments
-      .toSorted(
-        (a, b) =>
-          (a.metadata.sidebar?.order ?? 0) - (b.metadata.sidebar?.order ?? 0),
-      )
+      .toSorted((a, b) => {
+        if (
+          a.metadata.sidebar?.order !== undefined ||
+          b.metadata.sidebar?.order !== undefined
+        ) {
+          return (
+            (a.metadata.sidebar?.order ?? Number.POSITIVE_INFINITY) -
+            (b.metadata.sidebar?.order ?? Number.POSITIVE_INFINITY)
+          );
+        }
+        return a.metadata.title.localeCompare(b.metadata.title);
+      })
       .map((doc, index) => ({
         ...doc,
         relativeIndex: index,
