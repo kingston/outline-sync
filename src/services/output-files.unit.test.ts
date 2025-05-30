@@ -260,15 +260,19 @@ title: Doc 4
 sidebar:
   order: 2
 ---`,
+        '/test/output/doc5.md': `---
+title: Doc 5
+---`,
       });
 
       const result = await readCollectionFiles(mockCollection);
 
       expect(result.map((doc) => doc.metadata.title)).toEqual([
-        'Doc 3',
         'Doc 2',
         'Doc 4',
         'Doc 1',
+        'Doc 3',
+        'Doc 5',
       ]);
     });
   });
