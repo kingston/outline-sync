@@ -1,5 +1,11 @@
 # outline-sync
 
+## 0.2.5
+
+### Patch Changes
+
+- 284c415: Don't show logs when indexing with MCP
+
 ## 0.2.4
 
 ### Patch Changes
