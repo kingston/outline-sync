@@ -39,6 +39,7 @@ export async function ragSearchCommand(
     ragStores = await createIndexedRagStoreFromCollections(
       config.languageModel,
       collections,
+      { showLogs: true },
     );
     spinner.succeed('RAG search index created!');
   } catch (error) {

@@ -39,6 +39,7 @@ export async function searchCommand(
     vectorStores = await createIndexedVectorStoreFromCollections(
       config.languageModel,
       collections,
+      { showLogs: true },
     );
     spinner.succeed('Search index created!');
   } catch (error) {

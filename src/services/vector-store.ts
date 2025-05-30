@@ -113,6 +113,7 @@ export async function createVectorStore(
 export async function createIndexedVectorStoreFromCollections(
   config: LanguageModelConfig,
   collections: DocumentCollectionWithConfig[],
+  { showLogs = false }: { showLogs?: boolean } = {},
 ): Promise<FaissStore[]> {
   const vectorStores: FaissStore[] = [];
   for (const collection of collections) {
@@ -122,7 +123,10 @@ export async function createIndexedVectorStoreFromCollections(
       config,
       collection,
     );
-    if (result.documentsAdded > 0 || result.documentsDeleted > 0) {
+    if (
+      (result.documentsAdded > 0 || result.documentsDeleted > 0) &&
+      showLogs
+    ) {
       console.info(
         `Indexed ${result.documentsAdded.toString()} documents and deleted ${result.documentsDeleted.toString()} documents for collection ${collection.name}`,
       );
