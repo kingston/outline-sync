@@ -1,5 +1,11 @@
 # outline-sync
 
+## 0.2.4
+
+### Patch Changes
+
+- 0f58a34: Order new documents at the end of the folder rather than the first
+
 ## 0.2.3
 
 ### Patch Changes
