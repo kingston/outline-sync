@@ -1,3 +1,4 @@
+import { startCase } from 'es-toolkit';
 import matter from 'gray-matter';
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -76,11 +77,11 @@ async function readCollectionFilesForDirectory(
       const indexPath = path.join(fullPath, 'index.md');
       if (!(await fileExists(indexPath))) {
         // check if there are other md files in the directory
-        const otherMdFiles = await fs.readdir(fullPath);
+        const otherMdFiles = await fs.readdir(fullPath).catch(() => []);
         if (otherMdFiles.some((file) => file.endsWith('.md'))) {
-          throw new Error(
-            `Index file ${indexPath} not found. All subdirectories with md files must have an index.md file.`,
-          );
+          const title = startCase(entry.name);
+          const content = matter.stringify('', { title });
+          await fs.writeFile(indexPath, content);
         } else {
           continue;
         }

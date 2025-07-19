@@ -201,17 +201,35 @@ Content`,
       expect(childDoc?.parentDocumentId).toBe('/test/output/parent/index.md');
     });
 
-    it('should throw error if subdirectory has markdown files but no index.md', async () => {
+    it('should create index.md if a subdirectory with markdown files is missing one', async () => {
       vol.fromJSON({
-        '/test/output/subdir/doc.md': `---
+        '/test/output/sub-dir/doc.md': `---
 title: Document
 ---
 Content`,
       });
 
-      await expect(readCollectionFiles(mockCollection)).rejects.toThrow(
-        'Index file /test/output/subdir/index.md not found. All subdirectories with md files must have an index.md file.',
+      const results = await readCollectionFiles(mockCollection);
+
+      const indexPath = '/test/output/sub-dir/index.md';
+      expect(vol.existsSync(indexPath)).toBe(true);
+
+      const indexContent = (await vol.promises.readFile(
+        indexPath,
+        'utf8',
+      )) as string;
+      expect(indexContent).toContain('title: Sub Dir');
+
+      expect(results).toHaveLength(2);
+      const indexDoc = results.find((doc) => doc.filePath === indexPath);
+      expect(indexDoc).toBeDefined();
+      expect(indexDoc?.metadata.title).toBe('Sub Dir');
+
+      const otherDoc = results.find(
+        (doc) => doc.filePath === '/test/output/sub-dir/doc.md',
       );
+      expect(otherDoc).toBeDefined();
+      expect(otherDoc?.parentDocumentId).toBe(indexPath);
     });
 
     it('should skip directories without markdown files', async () => {

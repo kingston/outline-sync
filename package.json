@@ -35,6 +35,7 @@
     "chalk": "^5.4.1",
     "commander": "^14.0.0",
     "dotenv": "^16.5.0",
+    "es-toolkit": "^1.39.7",
     "express": "^5.1.0",
     "faiss-node": "^0.5.1",
     "globby": "^14.1.0",
