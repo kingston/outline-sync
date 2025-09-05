@@ -107,6 +107,7 @@ export class OutlineService {
     }
     return {
       id: data.data.id,
+      urlId: data.data.urlId,
       title: data.data.title,
       collectionId: data.data.collectionId,
       text: data.data.text,
@@ -137,6 +138,7 @@ export class OutlineService {
       .filter((d) => !d.archivedAt)
       .map((document, idx) => ({
         id: document.id,
+        urlId: document.urlId,
         title: document.title,
         collectionId: document.collectionId,
         parentDocumentId: document.parentDocumentId,

@@ -46,6 +46,7 @@ export function setupSearchRagDocumentsTool(
         ragStores = await createIndexedRagStoreFromCollections(
           config.languageModel,
           collections,
+          { apiUrl: config.outline.apiUrl },
         );
       } catch (error) {
         throw new Error(

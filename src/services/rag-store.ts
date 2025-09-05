@@ -8,7 +8,10 @@ import type { LanguageModelConfig } from '@src/types/config.js';
 import type { DocumentCollectionWithConfig } from '@src/utils/collection-filter.js';
 
 import { directoryExists } from '@src/utils/file-manager.js';
-import { createSafeFilename } from '@src/utils/file-names.js';
+import {
+  constructOutlineUrl,
+  createSafeFilename,
+} from '@src/utils/file-names.js';
 
 import { getLanguageEmbeddingsModel } from './langchain.js';
 import { readCollectionFiles } from './output-files.js';
@@ -39,6 +42,7 @@ export async function indexRagStoreForCollection(
   vectorStore: FaissStore,
   config: LanguageModelConfig,
   collection: DocumentCollectionWithConfig,
+  apiUrl?: string,
 ): Promise<IndexRagStoreForCollectionResult> {
   const searchIndexDirectory = getCollectionIndexDirectory(config, collection);
 
@@ -81,12 +85,23 @@ export async function indexRagStoreForCollection(
     if (collectionFile.content.trim().length === 0) {
       continue;
     }
+
+    // Generate URI - use Outline URL if both urlId and apiUrl are available, otherwise use file-based URI
+    const documentUri =
+      collectionFile.metadata.urlId && apiUrl
+        ? constructOutlineUrl(
+            apiUrl,
+            collectionFile.metadata.title,
+            collectionFile.metadata.urlId,
+          )
+        : `documents://${createSafeFilename(collection.name)}/${collectionFile.relativePath}`;
+
     documentsToAdd.push({
       pageContent: collectionFile.content,
       metadata: {
         lastModifiedAt: collectionFile.lastModifiedAt.toISOString(),
         documentRelativePath: collectionFile.relativePath,
-        documentUri: `documents://${createSafeFilename(collection.name)}/${collectionFile.relativePath}`,
+        documentUri,
       },
     });
   }
@@ -123,7 +138,7 @@ export async function createRagStore(
 export async function createIndexedRagStoreFromCollections(
   config: LanguageModelConfig,
   collections: DocumentCollectionWithConfig[],
-  { showLogs = false }: { showLogs?: boolean } = {},
+  { showLogs = false, apiUrl }: { showLogs?: boolean; apiUrl?: string } = {},
 ): Promise<FaissStore[]> {
   const vectorStores: FaissStore[] = [];
   for (const collection of collections) {
@@ -132,6 +147,7 @@ export async function createIndexedRagStoreFromCollections(
       vectorStore,
       config,
       collection,
+      apiUrl,
     );
     if (
       (result.documentsAdded > 0 || result.documentsDeleted > 0) &&

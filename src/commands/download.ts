@@ -207,6 +207,7 @@ async function writeDocumentRecursive({
       // Preserve description from existing file if not present in Outline
       description: hierarchyDoc.description ?? existingMetadata?.description,
       outlineId: hierarchyDoc.id,
+      urlId: hierarchyDoc.urlId,
       sidebar: {
         order: orderCounter.lastOrder,
       },

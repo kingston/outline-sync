@@ -9,6 +9,7 @@ export const documentFrontmatterSchema = z.object({
     })
     .optional(),
   outlineId: z.string().optional(),
+  urlId: z.string().optional(),
 });
 
 /**
@@ -21,6 +22,7 @@ export type DocumentFrontmatter = z.infer<typeof documentFrontmatterSchema>;
  */
 export interface Document {
   id: string;
+  urlId: string;
   title: string;
   description?: string;
   collectionId: string;

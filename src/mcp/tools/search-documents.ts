@@ -48,6 +48,7 @@ export function setupSearchDocumentsTool(
         vectorStores = await createIndexedVectorStoreFromCollections(
           config.languageModel,
           collections,
+          { apiUrl: config.outline.apiUrl },
         );
       } catch (error) {
         throw new Error(
