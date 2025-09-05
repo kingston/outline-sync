@@ -89,14 +89,12 @@ src/
 ### Key Workflows
 
 1. **Download Flow**:
-
    - Fetches collections from Outline API
    - Builds document hierarchy recursively
    - Downloads document content and embedded images
    - Writes markdown files with frontmatter metadata
 
 2. **Upload Flow**:
-
    - Scans local markdown files
    - Parses frontmatter to identify documents
    - Uploads new images to Outline
