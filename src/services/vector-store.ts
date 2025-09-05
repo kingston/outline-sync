@@ -7,7 +7,10 @@ import type { LanguageModelConfig } from '@src/types/config.js';
 import type { DocumentCollectionWithConfig } from '@src/utils/collection-filter.js';
 
 import { directoryExists } from '@src/utils/file-manager.js';
-import { createSafeFilename } from '@src/utils/file-names.js';
+import {
+  constructOutlineUrl,
+  createSafeFilename,
+} from '@src/utils/file-names.js';
 
 import { getLanguageEmbeddingsModel } from './langchain.js';
 import { readCollectionFiles } from './output-files.js';
@@ -15,6 +18,7 @@ import { readCollectionFiles } from './output-files.js';
 interface IndexedDocumentMetadata {
   title: string;
   outlineId?: string | undefined;
+  urlId?: string | undefined;
   lastModifiedAt: string;
   uri: string;
   description?: string;
@@ -36,6 +40,7 @@ export async function indexVectorStoreForCollection(
   vectorStore: FaissStore,
   config: LanguageModelConfig,
   collection: DocumentCollectionWithConfig,
+  apiUrl?: string,
 ): Promise<IndexVectorStoreForCollectionResult> {
   const searchIndexDirectory = getCollectionIndexDirectory(config, collection);
 
@@ -76,13 +81,25 @@ export async function indexVectorStoreForCollection(
     }
 
     documentIdsToAdd.push(collectionFile.relativePath);
+    
+    // Generate URI - use Outline URL if both urlId and apiUrl are available, otherwise use file-based URI
+    const uri =
+      collectionFile.metadata.urlId && apiUrl
+        ? constructOutlineUrl(
+            apiUrl,
+            collectionFile.metadata.title,
+            collectionFile.metadata.urlId,
+          )
+        : `documents://${createSafeFilename(collection.name)}/${collectionFile.relativePath}`;
+    
     documentsToAdd.push({
       pageContent: collectionFile.content,
       metadata: {
         title: collectionFile.metadata.title,
         outlineId: collectionFile.metadata.outlineId,
+        urlId: collectionFile.metadata.urlId,
         lastModifiedAt: collectionFile.lastModifiedAt.toISOString(),
-        uri: `documents://${createSafeFilename(collection.name)}/${collectionFile.relativePath}`,
+        uri,
       },
     });
   }
@@ -113,7 +130,7 @@ export async function createVectorStore(
 export async function createIndexedVectorStoreFromCollections(
   config: LanguageModelConfig,
   collections: DocumentCollectionWithConfig[],
-  { showLogs = false }: { showLogs?: boolean } = {},
+  { showLogs = false, apiUrl }: { showLogs?: boolean; apiUrl?: string } = {},
 ): Promise<FaissStore[]> {
   const vectorStores: FaissStore[] = [];
   for (const collection of collections) {
@@ -122,6 +139,7 @@ export async function createIndexedVectorStoreFromCollections(
       vectorStore,
       config,
       collection,
+      apiUrl,
     );
     if (
       (result.documentsAdded > 0 || result.documentsDeleted > 0) &&

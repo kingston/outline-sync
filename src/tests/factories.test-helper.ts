@@ -15,6 +15,7 @@ export function createMockDocument(
 ): Document {
   return {
     id: faker.string.uuid(),
+    urlId: faker.string.alphanumeric(8),
     title: faker.lorem.sentence(),
     collectionId: faker.string.uuid(),
     text: faker.lorem.paragraphs(),
@@ -87,6 +88,7 @@ export function createMockParsedDocument(
       title: faker.lorem.sentence(),
       description: faker.lorem.sentence(),
       outlineId: faker.string.uuid(),
+      urlId: faker.string.alphanumeric(8),
       sidebar: {
         order: faker.number.int(),
       },
