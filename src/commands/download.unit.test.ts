@@ -81,6 +81,7 @@ describe('downloadCommand', () => {
 
       const mockDocument = createMockDocumentWithChildren({
         id: 'doc-1',
+        urlId: 'test-url-id',
         title: 'Test Document',
         text: '# Test Document\n\nThis is test content.',
         description: 'A test document',
@@ -103,6 +104,7 @@ describe('downloadCommand', () => {
 title: Test Document
 description: A test document
 outlineId: doc-1
+urlId: test-url-id
 sidebar:
   order: 1
 ---
@@ -121,12 +123,14 @@ This is test content.
 
       const mockDocument = createMockDocumentWithChildren({
         id: 'doc-1',
+        urlId: 'parent-url-id',
         title: 'Parent Document',
         text: '# Parent Content',
         collectionId: 'col-1',
         children: [
           createMockDocumentWithChildren({
             id: 'doc-2',
+            urlId: 'child-url-id',
             title: 'Child Document',
             text: '# Child Content',
             collectionId: 'col-1',
@@ -145,6 +149,7 @@ This is test content.
         `---
 title: Parent Document
 outlineId: doc-1
+urlId: parent-url-id
 sidebar:
   order: 1
 ---
@@ -159,6 +164,7 @@ sidebar:
         `---
 title: Child Document
 outlineId: doc-2
+urlId: child-url-id
 sidebar:
   order: 2
 ---
@@ -175,6 +181,7 @@ sidebar:
 
       const mockDocument = createMockDocumentWithChildren({
         id: 'doc-1',
+        urlId: 'image-url-id',
         title: 'Document with Image',
         text: '# Document\n\n![Image](/api/attachments.redirect?id=att-123)',
         collectionId: 'col-1',
@@ -224,6 +231,7 @@ sidebar:
         `---
 title: Document with Image
 outlineId: doc-1
+urlId: image-url-id
 sidebar:
   order: 1
 ---
@@ -278,6 +286,7 @@ sidebar:
 
       const mockDocument = createMockDocumentWithChildren({
         id: 'doc-1',
+        urlId: 'preserve-url-id',
         title: 'Test Document',
         text: '# Test Document',
         description: 'A test document',
@@ -295,6 +304,7 @@ sidebar:
 title: Test Document
 description: A test document
 outlineId: doc-1
+urlId: preserve-url-id
 sidebar:
   order: 1
 ---
@@ -378,6 +388,7 @@ sidebar:
         'col-1': [
           createMockDocumentWithChildren({
             id: 'doc-1',
+            urlId: 'multi-url-1',
             title: 'Doc 1',
             text: '# Doc 1',
             collectionId: 'col-1',
@@ -386,6 +397,7 @@ sidebar:
         'col-2': [
           createMockDocumentWithChildren({
             id: 'doc-2',
+            urlId: 'multi-url-2',
             title: 'Doc 2',
             text: '# Doc 2',
             collectionId: 'col-2',
@@ -407,6 +419,7 @@ sidebar:
         `---
 title: Doc 1
 outlineId: doc-1
+urlId: multi-url-1
 sidebar:
   order: 1
 ---
@@ -417,6 +430,7 @@ sidebar:
         `---
 title: Doc 2
 outlineId: doc-2
+urlId: multi-url-2
 sidebar:
   order: 1
 ---
