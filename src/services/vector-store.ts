@@ -81,7 +81,7 @@ export async function indexVectorStoreForCollection(
     }
 
     documentIdsToAdd.push(collectionFile.relativePath);
-    
+
     // Generate URI - use Outline URL if both urlId and apiUrl are available, otherwise use file-based URI
     const uri =
       collectionFile.metadata.urlId && apiUrl
@@ -91,7 +91,7 @@ export async function indexVectorStoreForCollection(
             collectionFile.metadata.urlId,
           )
         : `documents://${createSafeFilename(collection.name)}/${collectionFile.relativePath}`;
-    
+
     documentsToAdd.push({
       pageContent: collectionFile.content,
       metadata: {
