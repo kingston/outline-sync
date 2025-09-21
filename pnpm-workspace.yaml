@@ -1,0 +1,11 @@
+ignoredBuiltDependencies:
+  - unrs-resolver
+
+minimumReleaseAge: 1440
+
+minimumReleaseAgeExclude:
+  - '@ktam/*'
+
+publishBranch: main
+
+saveWorkspaceProtocol: rolling

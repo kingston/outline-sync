@@ -184,7 +184,7 @@ export async function cleanupUnwrittenFiles(
   let deletedCount = 0;
 
   // Sort paths by depth (deepest first) to delete files before directories
-  const sortedPaths = [...allPaths].sort(
+  const sortedPaths = [...allPaths].toSorted(
     (a, b) => b.split(path.sep).length - a.split(path.sep).length,
   );
 

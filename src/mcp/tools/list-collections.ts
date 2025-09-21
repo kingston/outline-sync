@@ -19,9 +19,9 @@ export function setupListCollectionsTool(
     'list-collections',
     'List all available Outline collections configured for sync',
     {},
-    async () => {
-      const collectionInfos: McpCollectionInfo[] = await Promise.all(
-        collections.map((collection) => {
+    () => {
+      const collectionInfos: McpCollectionInfo[] = collections.map(
+        (collection) => {
           const info: McpCollectionInfo = {
             name: collection.name,
             key: createSafeFilename(collection.name),
@@ -30,9 +30,8 @@ export function setupListCollectionsTool(
           };
 
           return info;
-        }),
+        },
       );
-
       return {
         content: [
           {
