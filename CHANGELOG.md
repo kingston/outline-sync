@@ -1,5 +1,13 @@
 # outline-sync
 
+## 0.2.6
+
+### Patch Changes
+
+- 3ce405e: Upgrade dev dependencies and switch to trusted publishing
+- de20430: Update `output-files.ts` to automatically create an `index.md` file if it's missing in a directory containing other markdown files.
+- e6d3bfd: Support URL IDs to reference documents
+
 ## 0.2.5
 
 ### Patch Changes
