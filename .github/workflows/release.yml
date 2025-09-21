@@ -11,26 +11,27 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    environment: main
+    environment: release
     permissions:
       contents: write
       pull-requests: write
       id-token: write
-
     steps:
       - name: Check out Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up pnpm
         uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
       - name: Set up Node.JS
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version-file: package.json
-          cache: 'pnpm'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Upgrade npm to v11
+        run: npm install -g npm@11
 
       - name: Create Release Pull Request or Publish to NPM
         id: changesets
@@ -40,4 +41,3 @@ jobs:
           title: 'chore: Version Packages'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
