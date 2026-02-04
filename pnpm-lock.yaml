@@ -3559,6 +3559,11 @@ packages:
     peerDependencies:
       zod: ^3.24.1
 
+  zod-to-json-schema@3.25.0:
+    resolution: {integrity: sha512-HvWtU2UG41LALjajJrML6uQejQhNJx+JBO9IflpSja4R03iNWfKXrj6W2h7ljuLyc1nKS+9yDyL/9tD1U/yBnQ==}
+    peerDependencies:
+      zod: ^3.25 || ^4
+
   zod@3.25.20:
     resolution: {integrity: sha512-z03fqpTMDF1G02VLKUMt6vyACE7rNWkh3gpXVHgPTw28NPtDFRGvcpTtPwn2kMKtQ0idtYJUTxchytmnqYswcw==}
 
@@ -3620,7 +3625,7 @@ snapshots:
       openai: 4.103.0(ws@8.18.3)(zod@3.25.20)
       ws: 8.18.3
       zod: 3.25.20
-      zod-to-json-schema: 3.24.6(zod@3.25.20)
+      zod-to-json-schema: 3.25.0(zod@3.25.20)
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -4005,7 +4010,7 @@ snapshots:
       '@langchain/core': 0.3.57(openai@4.103.0(ws@8.18.3)(zod@3.25.20))
       fast-xml-parser: 4.5.3
       zod: 3.25.20
-      zod-to-json-schema: 3.24.6(zod@3.25.20)
+      zod-to-json-schema: 3.25.0(zod@3.25.20)
     transitivePeerDependencies:
       - encoding
 
@@ -4075,7 +4080,7 @@ snapshots:
       '@google/generative-ai': 0.24.1
       '@langchain/core': 0.3.57(openai@4.103.0(ws@8.18.3)(zod@3.25.20))
       uuid: 11.1.0
-      zod-to-json-schema: 3.24.6(zod@3.25.20)
+      zod-to-json-schema: 3.25.0(zod@3.25.20)
     transitivePeerDependencies:
       - zod
 
@@ -6700,6 +6705,10 @@ snapshots:
   yocto-queue@1.2.1: {}
 
   zod-to-json-schema@3.24.6(zod@3.25.20):
+    dependencies:
+      zod: 3.25.20
+
+  zod-to-json-schema@3.25.0(zod@3.25.20):
     dependencies:
       zod: 3.25.20
 
