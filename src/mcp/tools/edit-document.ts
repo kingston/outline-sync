@@ -79,35 +79,38 @@ export function setupEditDocumentTool(
   server: McpServer,
   collections: DocumentCollectionWithConfig[],
 ): void {
-  server.tool(
+  server.registerTool(
     'edit-document',
-    'Edit a local document file by updating its title, description, and/or content',
     {
-      documentUri: z
-        .string()
-        .describe('The URI of the document to edit')
-        .regex(
-          DOCUMENT_URI_REGEX,
-          'Invalid document URI. Should be in the format documents://{collectionKey}/{documentPath}',
-        ),
-      title: z
-        .string()
-        .optional()
-        .describe(
-          'The new title of the document (if undefined, the title will not be changed)',
-        ),
-      description: z
-        .string()
-        .optional()
-        .describe(
-          'The new description of the document (if undefined, the description will not be changed)',
-        ),
-      content: z
-        .string()
-        .optional()
-        .describe(
-          'The new content of the document (if undefined, the content will not be changed)',
-        ),
+      description:
+        'Edit a local document file by updating its title, description, and/or content',
+      inputSchema: {
+        documentUri: z
+          .string()
+          .describe('The URI of the document to edit')
+          .regex(
+            DOCUMENT_URI_REGEX,
+            'Invalid document URI. Should be in the format documents://{collectionKey}/{documentPath}',
+          ),
+        title: z
+          .string()
+          .optional()
+          .describe(
+            'The new title of the document (if undefined, the title will not be changed)',
+          ),
+        description: z
+          .string()
+          .optional()
+          .describe(
+            'The new description of the document (if undefined, the description will not be changed)',
+          ),
+        content: z
+          .string()
+          .optional()
+          .describe(
+            'The new content of the document (if undefined, the content will not be changed)',
+          ),
+      },
     },
     async (editParams) => {
       const result = await mcpEditDocument(editParams, collections);

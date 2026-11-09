@@ -50,14 +50,16 @@ export function setupGetDocumentByIdTool(
   server: McpServer,
   collections: DocumentCollectionWithConfig[],
 ): void {
-  server.tool(
+  server.registerTool(
     'get-document-by-id',
-    'Get details of a local document file by its UUID',
     {
-      documentId: z
-        .string()
-        .describe('The UUID of the document to get')
-        .uuid('Invalid document UUID'),
+      description: 'Get details of a local document file by its UUID',
+      inputSchema: {
+        documentId: z
+          .string()
+          .describe('The UUID of the document to get')
+          .uuid('Invalid document UUID'),
+      },
     },
     async (getParams) => {
       const result = await mcpGetDocumentById(getParams, collections);

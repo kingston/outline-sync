@@ -15,10 +15,11 @@ export function setupListCollectionsTool(
   server: McpServer,
   collections: DocumentCollectionWithConfig[],
 ): void {
-  server.tool(
+  server.registerTool(
     'list-collections',
-    'List all available Outline collections configured for sync',
-    {},
+    {
+      description: 'List all available Outline collections configured for sync',
+    },
     () => {
       const collectionInfos: McpCollectionInfo[] = collections.map(
         (collection) => {

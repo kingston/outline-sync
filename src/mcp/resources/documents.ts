@@ -11,7 +11,7 @@ export function setupMcpDocumentResource(
   server: McpServer,
   collections: DocumentCollectionWithConfig[],
 ): void {
-  server.resource(
+  server.registerResource(
     'document',
     new ResourceTemplate('documents://{collectionKey}/{+documentPath}', {
       list: async () => {
@@ -32,6 +32,7 @@ export function setupMcpDocumentResource(
         };
       },
     }),
+    {},
     async (uri, { collectionKey, documentPath }) => {
       if (typeof documentPath !== 'string') {
         throw new TypeError(`Document path must be a string`);

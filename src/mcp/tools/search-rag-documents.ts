@@ -16,17 +16,20 @@ export function setupSearchRagDocumentsTool(
   config: Config,
   collections: DocumentCollectionWithConfig[],
 ): void {
-  server.tool(
+  server.registerTool(
     'search-rag-documents',
-    'Search across document chunks using RAG (Retrieval-Augmented Generation) for finding specific passages',
     {
-      query: z
-        .string()
-        .describe('The search query to find similar document chunks'),
-      limit: z
-        .number()
-        .describe('Maximum number of chunks to return (default: 10)')
-        .default(10),
+      description:
+        'Search across document chunks using RAG (Retrieval-Augmented Generation) for finding specific passages',
+      inputSchema: {
+        query: z
+          .string()
+          .describe('The search query to find similar document chunks'),
+        limit: z
+          .number()
+          .describe('Maximum number of chunks to return (default: 10)')
+          .default(10),
+      },
     },
     async (args) => {
       const { query, limit = 10 } = args;

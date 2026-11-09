@@ -44,7 +44,9 @@ export async function getTitleDescription(
     : path.basename(filePath);
   const model = await getLanguageChatModel(languageModelConfig);
 
-  const structuredModel = model.withStructuredOutput(titleDescriptionSchema);
+  const structuredModel = model.withStructuredOutput<
+    z.infer<typeof titleDescriptionSchema>
+  >(titleDescriptionSchema);
 
   const result = await structuredModel.invoke([
     new SystemMessage(
