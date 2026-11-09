@@ -1,5 +1,12 @@
 # outline-sync
 
+## 0.2.7
+
+### Patch Changes
+
+- 8be51b7: Bump the pinned Node.js version to 22.23.4 and `@types/node` to 22.x.
+- b1b338c: Update dependencies to fix security advisories, including LangChain 1.x (`@langchain/community`, `@langchain/core`, `@langchain/textsplitters`). The optional peer dependencies `@langchain/anthropic`, `@langchain/google-genai` and `@langchain/openai` now require their 1.x/2.x releases, and MCP tools and resources use the non-deprecated `registerTool`/`registerResource` API.
+
 ## 0.2.6
 
 ### Patch Changes
