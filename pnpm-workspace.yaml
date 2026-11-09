@@ -1,5 +1,8 @@
-ignoredBuiltDependencies:
-  - unrs-resolver
+allowBuilds:
+  esbuild: false
+  faiss-node: false
+  protobufjs: false
+  unrs-resolver: false
 
 minimumReleaseAge: 1440
 
