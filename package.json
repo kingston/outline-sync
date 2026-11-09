@@ -81,7 +81,7 @@
       "optional": true
     }
   },
-  "packageManager": "pnpm@10.17.0",
+  "packageManager": "pnpm@12.18.0",
   "engines": {
     "node": ">=20",
     "pnpm": ">=9"
@@ -89,15 +89,5 @@
   "publishConfig": {
     "access": "public",
     "provenance": true
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "faiss-node",
-      "protobufjs"
-    ],
-    "ignoredBuiltDependencies": [
-      "esbuild",
-      "unrs-resolver"
-    ]
   }
 }
