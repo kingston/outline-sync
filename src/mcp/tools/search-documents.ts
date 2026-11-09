@@ -16,21 +16,25 @@ export function setupSearchDocumentsTool(
   config: Config,
   collections: DocumentCollectionWithConfig[],
 ): void {
-  server.tool(
+  server.registerTool(
     'search-documents',
-    'Search across Outline documents using semantic similarity',
     {
-      query: z.string().describe('The search query to find similar documents'),
-      limit: z
-        .number()
-        .describe('Maximum number of results to return (default: 5)')
-        .default(5),
-      includeContents: z
-        .boolean()
-        .describe(
-          'Whether to include document contents in results (default: false)',
-        )
-        .default(false),
+      description: 'Search across Outline documents using semantic similarity',
+      inputSchema: {
+        query: z
+          .string()
+          .describe('The search query to find similar documents'),
+        limit: z
+          .number()
+          .describe('Maximum number of results to return (default: 5)')
+          .default(5),
+        includeContents: z
+          .boolean()
+          .describe(
+            'Whether to include document contents in results (default: false)',
+          )
+          .default(false),
+      },
     },
     async (args) => {
       const { query, limit = 5, includeContents = false } = args;

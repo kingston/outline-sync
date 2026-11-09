@@ -102,24 +102,27 @@ export function setupListDocumentsTool(
   server: McpServer,
   collections: DocumentCollectionWithConfig[],
 ): void {
-  server.tool(
+  server.registerTool(
     'list-documents',
-    'List available documents with optional filtering by collection, prefix path, or keywords',
     {
-      collectionKey: z
-        .string()
-        .optional()
-        .describe('Optional collection key to filter documents'),
-      prefix: z
-        .string()
-        .optional()
-        .describe('Optional prefix path to filter documents by subdirectory'),
-      keywords: z
-        .string()
-        .optional()
-        .describe(
-          'Optional space-separated keywords to search in document title, description, or content. All keywords must be present.',
-        ),
+      description:
+        'List available documents with optional filtering by collection, prefix path, or keywords',
+      inputSchema: {
+        collectionKey: z
+          .string()
+          .optional()
+          .describe('Optional collection key to filter documents'),
+        prefix: z
+          .string()
+          .optional()
+          .describe('Optional prefix path to filter documents by subdirectory'),
+        keywords: z
+          .string()
+          .optional()
+          .describe(
+            'Optional space-separated keywords to search in document title, description, or content. All keywords must be present.',
+          ),
+      },
     },
     async (listParams) => {
       const result = await mcpListDocuments(listParams, collections);

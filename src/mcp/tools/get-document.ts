@@ -63,17 +63,19 @@ export function setupGetDocumentTool(
   server: McpServer,
   collections: DocumentCollectionWithConfig[],
 ): void {
-  server.tool(
+  server.registerTool(
     'get-document',
-    'Get details of a local document file',
     {
-      documentUri: z
-        .string()
-        .describe('The URI of the document to get')
-        .regex(
-          DOCUMENT_URI_REGEX,
-          'Invalid document URI. Should be in the format documents://{collectionKey}/{documentPath}',
-        ),
+      description: 'Get details of a local document file',
+      inputSchema: {
+        documentUri: z
+          .string()
+          .describe('The URI of the document to get')
+          .regex(
+            DOCUMENT_URI_REGEX,
+            'Invalid document URI. Should be in the format documents://{collectionKey}/{documentPath}',
+          ),
+      },
     },
     async (getParams) => {
       const result = await mcpGetDocument(getParams, collections);

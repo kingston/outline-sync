@@ -67,23 +67,25 @@ export function setupCreateDocumentTool(
   server: McpServer,
   collections: DocumentCollectionWithConfig[],
 ): void {
-  server.tool(
+  server.registerTool(
     'create-document',
-    'Create a new local document file',
     {
-      documentUri: z
-        .string()
-        .describe('The URI of the document to create')
-        .regex(
-          DOCUMENT_URI_REGEX,
-          'Invalid document URI. Should be in the format documents://{collectionKey}/{documentPath}',
-        ),
-      title: z.string().describe('The title of the document'),
-      description: z
-        .string()
-        .optional()
-        .describe('Optional description of the document'),
-      content: z.string().describe('The content of the document'),
+      description: 'Create a new local document file',
+      inputSchema: {
+        documentUri: z
+          .string()
+          .describe('The URI of the document to create')
+          .regex(
+            DOCUMENT_URI_REGEX,
+            'Invalid document URI. Should be in the format documents://{collectionKey}/{documentPath}',
+          ),
+        title: z.string().describe('The title of the document'),
+        description: z
+          .string()
+          .optional()
+          .describe('Optional description of the document'),
+        content: z.string().describe('The content of the document'),
+      },
     },
     async (createParams) => {
       const result = await mcpCreateDocument(createParams, collections);

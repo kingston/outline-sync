@@ -92,29 +92,32 @@ export function setupInlineEditTool(
   server: McpServer,
   collections: DocumentCollectionWithConfig[],
 ): void {
-  server.tool(
+  server.registerTool(
     'inline-edit',
-    'Edit a local document file by applying find-replace commands',
     {
-      documentUri: z
-        .string()
-        .describe('The URI of the document to edit')
-        .regex(
-          DOCUMENT_URI_REGEX,
-          'Invalid document URI. Should be in the format documents://{collectionKey}/{documentPath}',
-        ),
-      commands: z
-        .array(
-          z.object({
-            oldText: z.string().describe('The text to find'),
-            newText: z.string().describe('The text to replace with'),
-            numReplacements: z
-              .number()
-              .optional()
-              .describe('Expected number of replacements (defaults to 1)'),
-          }),
-        )
-        .describe('Array of find-replace commands to apply'),
+      description:
+        'Edit a local document file by applying find-replace commands',
+      inputSchema: {
+        documentUri: z
+          .string()
+          .describe('The URI of the document to edit')
+          .regex(
+            DOCUMENT_URI_REGEX,
+            'Invalid document URI. Should be in the format documents://{collectionKey}/{documentPath}',
+          ),
+        commands: z
+          .array(
+            z.object({
+              oldText: z.string().describe('The text to find'),
+              newText: z.string().describe('The text to replace with'),
+              numReplacements: z
+                .number()
+                .optional()
+                .describe('Expected number of replacements (defaults to 1)'),
+            }),
+          )
+          .describe('Array of find-replace commands to apply'),
+      },
     },
     async (editParams) => {
       const result = await mcpInlineEdit(editParams, collections);
