@@ -54,7 +54,7 @@
     "@tsconfig/node20": "^20.1.5",
     "@types/express": "^5.0.2",
     "@types/mime-types": "^2.1.4",
-    "@types/node": "^20.19.13",
+    "@types/node": "^22.20.5",
     "eslint": "9.36.0",
     "memfs": "^4.17.2",
     "openapi-typescript": "^7.8.0",
